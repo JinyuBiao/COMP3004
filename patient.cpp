@@ -9,7 +9,7 @@ Patient::~Patient()
 
 void Patient::setChild()
 {
-    isAdult = false;
+    isAdult = !isAdult;
 }
 
 void Patient::setPad()
@@ -34,16 +34,10 @@ void Patient::setHeartData()
             for(int i=0; i<20; ++i){
                 heartAmp.append((rand()%2000)+1); //append to Amplitude array with a random number between 1 to 2000 for 20 times
             }
-            if(isAdult)
-                heartRate = rand()%41+60; //generates number between 60 to 100 for adult heart rate
-            else
-                heartRate = rand()%71 + 80; //generate number between 80 to 150 for child heart rate
+            heartRate = (isAdult) ? rand()%41+60 : rand()%41 + 80; //generates number between 60 to 100 for adult heart rate otherwise between 80 to 120 for child heart rate
             break;
         case tachycardia:
-            if(isAdult)
-                heartRate = rand()%100 + 101; //generates number between 101 to 200 for adult heart rate
-            else
-                heartRate = rand()%100 + 151; //generate number between 151 to 250 for child heart rate
+            heartRate = (isAdult) ? rand()%100 + 101 : rand()%100 + 121; //generates number between 101 to 200 for adult heart rate, otherwise between 121 to 220 for child heart rate
             for(int i=0; i<20; ++i){
                 heartAmp.append(1000); //append to Amplitude array with amplitude 1000 for 20 times
             }
@@ -53,12 +47,13 @@ void Patient::setHeartData()
             heartAmp.clear();
             break;
         case healthy:
-            if(isAdult){
-                heartRate = rand()%41+60;
+            heartRate = (isAdult) ? rand()%41+60 : rand()%71 + 80;
+            for(int i=0; i<20; ++i){
+                heartAmp.append(1000); //append to Amplitude array with amplitude 1000 for 20 times
             }
-            else{
-                heartRate = rand()%71 + 80;
-            }
+            break;
+        case other:
+            heartRate = (isAdult) ? rand()%59+1 : rand()%79 + 1;
             for(int i=0; i<20; ++i){
                 heartAmp.append(1000); //append to Amplitude array with amplitude 1000 for 20 times
             }
@@ -71,7 +66,17 @@ int Patient::getHeartRate()
     return heartRate;
 }
 
+bool Patient::notInContact()
+{
+    return standClear;
+}
+
 QVector<int>& Patient::getAmp()
 {
-    return(heartAmp);
+    return heartAmp;
+}
+
+StateType Patient::getState()
+{
+    return currState;
 }

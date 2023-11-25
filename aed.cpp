@@ -2,62 +2,80 @@
 
 Aed::Aed()
 {
-
 }
 
 Aed::~Aed()
 {
 }
 
-bool Aed::detectShockable()//needs to add print statement after AedUI is done
+void Aed::drainBattery(int i)
 {
-    if(detectPad()){
-        switch(detectPatientState()){
-            case fibrillation:
-                return(getAvgAmp()>100);
-                break;
-            case tachycardia:
-                if(AdultPad)
-                    return(patient.getHeartRate()>150);
-                else
-                    return(patient.getHeartRate()>200);
-                break;
-            default:
-                return false;
-                break;
-        }
-    }
-    return false;
+    batteryLeft -= qMax((batteryLeft - i), 0.0);
 }
 
-int Aed::getAvgAmp()
+void Aed::newPatient(Patient& p)
 {
-    int average = 0;
-    for(int i : patient.getAmp()){
-        average += i;
-    }
-    average = average/patient.getAmp().size();
-
-    return average;
+    patient = p;
 }
 
-StateType Aed::detectPatientState()
+void Aed::touchPatient()
 {
-    if(detectPad()){
-        StateType state;
-        if(patient.getHeartRate()==0){
-            state = dead;
-        }
-        else if(AdultPad){
-            if(patient.getHeartRate()>=101){
-                state = tachycardia;
-            }
-            else
-        }
-    }
+    patient.setStandClear();
+}
+
+bool Aed::selfCheck()
+{
+
 }
 
 bool Aed::detectPad()
 {
     return(connectedElectrode&&(ChildPad||AdultPad));
+}
+
+bool Aed::detectShockable()//needs to add AedUI functions for printing after AedUI is done
+{
+    bool shockable = false;
+    if(detectPad()){
+        if(detectPatientState()==fibrillation||detectPatientState()==tachycardia){
+            shockable = true;
+        }
+    }
+    //AedUI methods to print text on console goes here:
+
+    return shockable;
+}
+
+bool Aed::checkCPR()
+{
+    bool cpr = (detectPatientState()==tachycardia||detectPatientState()==fibrillation) ? true : false;
+    //AedUI methods to print text on console goes here:
+
+    return cpr;
+}
+
+StateType Aed::detectPatientState()
+{
+    StateType state = dead;
+    if(detectPad()){
+        if(patient.notInContact()){
+            state = patient.getState();
+        }
+        else{
+            state = healthy;
+        }
+    }
+    //AedUI methods to print text on console goes here:
+
+    return(state);
+}
+
+double Aed::getBattery()
+{
+    return batteryLeft;
+}
+
+int Aed::getCprDepth()
+{
+    return cprDepth;
 }

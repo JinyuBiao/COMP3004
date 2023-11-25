@@ -5,7 +5,7 @@
 #include <QVector>
 #include <QtMath>
 
-typedef enum {fibrillation, tachycardia, dead, healthy} StateType;
+typedef enum {fibrillation, tachycardia, dead, healthy, other} StateType;
 
 class Patient
 {
@@ -18,6 +18,8 @@ class Patient
         void setState(StateType);
         void setHeartData();
         int getHeartRate();
+        bool notInContact();
+        StateType getState();
         QVector<int>& getAmp();
     private:
         bool isAdult;
