@@ -25,7 +25,7 @@ void Aed::touchPatient()
 
 bool Aed::selfCheck()
 {
-
+    return true;
 }
 
 bool Aed::detectPad()

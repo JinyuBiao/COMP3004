@@ -26,3 +26,19 @@ FORMS += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+RESOURCES += \
+    project.qrc
+
+DISTFILES += \
+    pic/shockButton.svg \
+    pic/step1.svg \
+    pic/step1_light.svg \
+    pic/step2.svg \
+    pic/step2_light.svg \
+    pic/step3.svg \
+    pic/step3_light.svg \
+    pic/step4.svg \
+    pic/step4_light.svg \
+    pic/step5.svg \
+    pic/step5_light.svg
