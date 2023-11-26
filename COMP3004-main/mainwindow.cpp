@@ -57,10 +57,7 @@ void MainWindow::createPatient()
 void MainWindow::changeDeviceState()
 {
     bool simulationEnabled = operating&&ui->electrodeConnectedCheckBox->isChecked();
-    ui->deadPatientButton->setEnabled(simulationEnabled);
-    ui->fibrillationButton->setEnabled(simulationEnabled);
-    ui->tachycardiaButton->setEnabled(simulationEnabled);
-    ui->otherRhythmsButton->setEnabled(simulationEnabled);
+    setSimulateButtons(simulationEnabled);
 
     ui->createPatientButton->setEnabled(!operating);
     ui->padSelectionComboBox->setEnabled(!operating); //set pad selection disabled because once electrode is connected and device is turned on, it can not be unplugged
@@ -79,11 +76,6 @@ void MainWindow::togglePowerButton(bool checked)
     }
     else{
         ui->powerOnButton->setChecked(false);
-    }
-
-    if(currStep != -1){
-        stepImages[currStep]->setChecked(false);
-        currStep = -1;
     }
 }
 
@@ -133,6 +125,7 @@ void MainWindow::connectElectrode(bool connection)
 void MainWindow::simulateFib()
 {
     initializeMainTimer(mainProcessTimer);
+    setSimulateButtons(false);
 }
 
 void MainWindow::simulateTach()
@@ -154,48 +147,64 @@ void MainWindow::initializeMainTimer(QTimer* t)
 {
     connect(t, &QTimer::timeout, this, &MainWindow::updateMainTimer);
     currStep = 1;
+    stepImages[0]->setChecked(true);
     t->start(2000);
 }
 
 void MainWindow::updateMainTimer()
 {
     if(currStep == 6 || !operating){
-        if(currStep <= 5)
+        if(!operating && currStep <= 5) //if users turn off device when the process (5 steps) is not over, uncheck the last step before turnning off
             stepImages[currStep-1]->setChecked(false);
-        else if(currStep == 6)
+        else if(currStep == 6){ //else all steps are completed, uncheck the last step
             stepImages[4]->setChecked(false);
+            setSimulateButtons(true);
+        }
         mainProcessTimer->stop();
-        currStep = 1;
+        mainProcessTimer->disconnect();
     }
     else{
         consumingBattery(1);
 
         switch(currStep){
             case 1:
-                stepImages[0]->setChecked(true);
-                currStep++;
-            break;
-            case 2:
                 stepImages[0]->setChecked(false);
                 stepImages[1]->setChecked(true);
-                currStep++;
+                //if(nextStep)
+                    currStep++;
             break;
-            case 3:
+            case 2:
                 stepImages[1]->setChecked(false);
                 stepImages[2]->setChecked(true);
-                currStep++;
+                //if(nextStep)
+                    currStep++;
             break;
-            case 4:
+            case 3:
                 stepImages[2]->setChecked(false);
                 stepImages[3]->setChecked(true);
-                currStep++;
+                //if(nextStep)
+                    currStep++;
             break;
-            case 5:
+            case 4:
                 stepImages[3]->setChecked(false);
                 stepImages[4]->setChecked(true);
-                currStep++;
+                //if(nextStep)
+                    currStep++;
+            break;
+            case 5:
+                //if(nextStep)
+                    stepImages[4]->setChecked(false);
+                    currStep++;
+                //else currStep--, back to the anaylzing step (step 4) if patient still needs treatment
             break;
         }
     }
+}
 
+void MainWindow::setSimulateButtons(bool b)
+{
+    ui->deadPatientButton->setEnabled(b);
+    ui->fibrillationButton->setEnabled(b);
+    ui->tachycardiaButton->setEnabled(b);
+    ui->otherRhythmsButton->setEnabled(b);
 }

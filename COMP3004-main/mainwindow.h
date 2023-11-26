@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QTimer>
 #include <QLabel>
+#include <QDebug>
 #include <QPushButton>
 #include "patient.h"
 #include "aed.h"
@@ -38,6 +39,7 @@ private:
     void consumingBattery(double);
     void initializeMainTimer(QTimer*);
     void initializeAedTimer(QTimer*);
+    void setSimulateButtons(bool);
 private slots:
     void createPatient();
     void fillBattery();
