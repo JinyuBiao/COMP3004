@@ -53,7 +53,7 @@ bool Aed::hasAdultPad()
 
 bool Aed::selfCheck()
 {
-    if(batteryLeft<10){
+    if(batteryLeft<15){
         //aed.lowBatteryMessage()
         qInfo("low battery, turning on failed");
     }
@@ -61,7 +61,7 @@ bool Aed::selfCheck()
         //aed.noElectrodeMessage()
         qInfo("no electrode connected, turning on failed");
     }
-    return (batteryLeft>=5&&connected);
+    return (batteryLeft>=15&&connected);
 }
 
 bool Aed::detectPad()

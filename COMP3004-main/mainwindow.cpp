@@ -95,13 +95,17 @@ void MainWindow::togglePowerButton(bool checked)
         changeDeviceState();
         if(checked){
             aed.newPatient(patient);
+            qDebug() << "turning on ";
+        }
+        else{
+            qDebug() << "turning off ";
         }
     }
     if(aedWaiting){//if aed is turned off while it is still in process, set aedWaiting to false and stop all processes
         aedWaiting = false;
         stopProcess();
     }
-    qDebug() << "turning off ";
+
     ui->powerOnButton->setChecked(operating);
 }
 
@@ -186,16 +190,11 @@ void MainWindow::simulateOther()
 void MainWindow::initializeMainTimer(QTimer* t)
 {
     connect(t, &QTimer::timeout, this, &MainWindow::updateMainTimer);
-
-    if(aed.selfCheck()){ //if selfcheck passed, the image on the first step button will be switched to the step1_light.svg by set the button to checked
-        qDebug() << "starting process " << QString::number(currStep);
-        stepImages[0]->setChecked(true); //this sets the first step button to checked, so the image will change, same for all other steps
-        updatingEcg(1,1000);
-        currStep++;
-        t->start(2000);
-    }
-    //else()
-        //t->disconnect();
+    qDebug() << "starting process " << QString::number(currStep);
+    stepImages[0]->setChecked(true); //this sets the first step button to checked, so the image will change, same for all other steps
+    updatingEcg(1,1000);
+    currStep++;
+    t->start(2000);
 }
 
 void MainWindow::updateMainTimer()
@@ -316,12 +315,14 @@ void MainWindow::stopProcess()
 
 void MainWindow::startProcess()
 {
-    currStep = 0;
-    aedWaiting = true;
-    initializeMainTimer(mainProcessTimer);
-    setSimulateButtons(false);
-    ui->padSelectionComboBox->setEnabled(false);
-    ui->changeAgeComboBox->setEnabled(false);
+    if(aed.selfCheck()){
+        currStep = 0;
+        aedWaiting = true;
+        initializeMainTimer(mainProcessTimer);
+        setSimulateButtons(false);
+        ui->padSelectionComboBox->setEnabled(false);
+        ui->changeAgeComboBox->setEnabled(false);
+    }
 }
 
 void MainWindow::changeAge()
@@ -346,11 +347,11 @@ void MainWindow::startAnaylzing()
         qDebug() << "no shock needed, on to the next step";
         stepImages[3]->setChecked(false);
         stepImages[4]->setChecked(true);
+        anaylzingTime = 0;
         currStep++;
     }
     else if(!ui->shockButton->isChecked()){
         ui->shockButton->setEnabled(true);
-        patient->setHeartData();
         generateHeartData();
         qDebug() << "waiting for delivering shock";
     }
@@ -361,6 +362,7 @@ void MainWindow::startAnaylzing()
         ui->shockButton->setEnabled(false);
         stepImages[3]->setChecked(false);
         stepImages[4]->setChecked(true);
+        anaylzingTime = 0;
         currStep++;
     }
 }
@@ -379,15 +381,18 @@ void MainWindow::generateHeartData()
 {
     patient->setHeartData();
 
-    if(patient->getState()==tachycardia){
+    if(patient->getState()==tachycardia || patient->getState()==other){//make graph resembles tachycardia
         updatingEcg(2,patient->getAmp()+1000);
         updatingEcg(2,1000-patient->getAmp());
         updatingEcg(2,1000);
-        updatingEcg(patient->getHeartRate()/30,1000);
+        updatingEcg(220/patient->getHeartRate(),1000);
     }
-    else{
+    else if(patient->getState()==fibrillation){ //make graph resembles fibrillation
         double randomInvertal = (rand()%9+4)/(rand()%3+1);
         updatingEcg(randomInvertal,patient->getAmp()+1000);
         updatingEcg(randomInvertal,patient->getAmp());
+    }
+    else{
+        updatingEcg(10,1000); //flatline for dead patient
     }
 }
