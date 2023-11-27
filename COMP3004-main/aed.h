@@ -15,7 +15,7 @@ class Aed : public QObject
         void setBattery(double);
         void newPatient(Patient*);
         void setCPRdepth(int);
-        void doCPR();
+        void doCPR(bool);
         void startAnaylzing();
         void noActivity();
         void resetPatientStatus();
@@ -25,9 +25,15 @@ class Aed : public QObject
         bool detectPad();
         bool detectShockable();
         bool isAnaylzing();
+        bool isConnected();
+        bool isDoingCPR();
 
         double getBattery();
         int getCprDepth();
+        int waitPadTime;
+        int anaylzingTime;
+        int cprTime;
+        bool aedWaiting;
 
         StateType detectPatientState();
         QTimer* getTimer();
@@ -35,14 +41,14 @@ class Aed : public QObject
     public slots:
         void setChildPad(bool);
         void setAdultPad(bool);
-
+        void waitingForPad();
 
     private:
         double batteryLeft;
 
         int cprDepth;
 
-        bool electrodeConnection;	//default to false
+        bool connected;	//default to false
         bool ChildPad;//default to false
         bool AdultPad;//default to false
 

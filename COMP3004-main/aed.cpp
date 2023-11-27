@@ -4,6 +4,9 @@ Aed::Aed()
 {
     timer = new QTimer(this);
     batteryLeft = 100;
+    anaylzingTime = 0;
+    cprTime = 0;
+    waitPadTime = 0;
 }
 
 Aed::~Aed()
@@ -31,23 +34,9 @@ void Aed::setCPRdepth(int d)
     cprDepth = d;
 }
 
-void Aed::doCPR()
+void Aed::doCPR(bool inCPR)
 {
-    if(detectPatientState()==tachycardia||detectPatientState()==fibrillation||detectPatientState()==other){
-        cprPeriod = true;
-        //AedUI methods prompting user to do CPR on console goes here:
-
-    }
-    else if(detectPatientState()==dead){
-        cprPeriod = false;
-        //AedUI methods giving flatline warnning:
-
-    }
-    else{
-        cprPeriod = false;
-        //AedUI methods giving healthy patient warnning:
-
-    }
+    cprPeriod = inCPR;
 }
 
 void Aed::startAnaylzing()
@@ -73,17 +62,30 @@ void Aed::setChildPad(bool placed)
 
 void Aed::setElectrode(bool connection)
 {
-    electrodeConnection = connection;
+    connected = connection;
+}
+
+void Aed::waitingForPad()
+{
+    if(patient->hasPad() || waitPadTime == 3){
+        timer->stop();
+        timer->disconnect();
+        aedWaiting = false;
+        waitPadTime = 0;
+    }
+    else{
+        waitPadTime++;
+    }
 }
 
 bool Aed::selfCheck()
 {
-    return (batteryLeft>=5&&electrodeConnection);
+    return (batteryLeft>=5&&connected);
 }
 
 bool Aed::detectPad()
 {
-    return(electrodeConnection&&(ChildPad||AdultPad));
+    return(connected&&(ChildPad||AdultPad));
 }
 
 bool Aed::detectShockable()//needs to add AedUI functions for printing after AedUI is done
@@ -93,8 +95,20 @@ bool Aed::detectShockable()//needs to add AedUI functions for printing after Aed
         if(detectPatientState()==fibrillation||detectPatientState()==tachycardia){
             shockable = true;
         }
+        else if(detectPatientState()==dead){
+            //AedUI methods to warning a flatline or no signal detected on console goes here:
+
+        }
+        else{
+            //AedUI methods to state that patient is healthy on console goes here:
+
+        }
     }
-    //AedUI methods to print text on console goes here:
+    else{
+        //AedUI methods to state that there is no pad connected on console goes here:
+
+
+    }
 
     return shockable;
 }
@@ -102,6 +116,16 @@ bool Aed::detectShockable()//needs to add AedUI functions for printing after Aed
 bool Aed::isAnaylzing()
 {
     return anaylzing;
+}
+
+bool Aed::isConnected()
+{
+    return connected;
+}
+
+bool Aed::isDoingCPR()
+{
+    return cprPeriod;
 }
 
 double Aed::getBattery()
@@ -125,8 +149,6 @@ StateType Aed::detectPatientState()
             state = healthy;
         }
     }
-    //AedUI methods to print detected patient's state on console goes here:
-
     return(state);
 }
 

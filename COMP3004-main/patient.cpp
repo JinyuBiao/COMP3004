@@ -75,6 +75,11 @@ bool Patient::notChild()
     return isAdult;
 }
 
+bool Patient::hasPad()
+{
+    return padPlaced;
+}
+
 int Patient::getAmp()
 {
     return heartAmp;

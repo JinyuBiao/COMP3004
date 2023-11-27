@@ -160,7 +160,8 @@ QPushButton {
     </property>
     <property name="icon">
      <iconset resource="project.qrc">
-      <normaloff>:/pic/shockButton.svg</normaloff>:/pic/shockButton.svg</iconset>
+      <normaloff>:/pic/shockButton.svg</normaloff>
+      <normalon>:/pic/shockButton_on.svg</normalon>:/pic/shockButton.svg</iconset>
     </property>
     <property name="iconSize">
      <size>
@@ -169,7 +170,7 @@ QPushButton {
      </size>
     </property>
     <property name="checkable">
-     <bool>false</bool>
+     <bool>true</bool>
     </property>
     <property name="checked">
      <bool>false</bool>
@@ -476,6 +477,12 @@ QPushButton {
                <height>16777215</height>
               </size>
              </property>
+             <property name="styleSheet">
+              <string notr="true">QCheckBox::indicator{
+	width: 20px;
+	height: 20px;
+}</string>
+             </property>
              <property name="text">
               <string/>
              </property>
@@ -524,6 +531,12 @@ QPushButton {
                <height>16777215</height>
               </size>
              </property>
+             <property name="styleSheet">
+              <string notr="true">QCheckBox::indicator{
+	width: 20px;
+	height: 20px;
+}</string>
+             </property>
              <property name="text">
               <string/>
              </property>
@@ -557,6 +570,12 @@ QPushButton {
            </item>
            <item row="5" column="2">
             <widget class="QCheckBox" name="patientTouchedCheckBox">
+             <property name="styleSheet">
+              <string notr="true">QCheckBox::indicator{
+	width: 20px;
+	height: 20px;
+}</string>
+             </property>
              <property name="text">
               <string/>
              </property>
@@ -675,25 +694,6 @@ QPushButton {
       </widget>
      </item>
     </layout>
-   </widget>
-   <widget class="QLabel" name="padLabel">
-    <property name="geometry">
-     <rect>
-      <x>50</x>
-      <y>530</y>
-      <width>81</width>
-      <height>71</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="pixmap">
-     <pixmap resource="project.qrc">:/pic/electrodePadOff.svg</pixmap>
-    </property>
-    <property name="scaledContents">
-     <bool>true</bool>
-    </property>
    </widget>
    <widget class="QLabel" name="label_6">
     <property name="geometry">
@@ -926,6 +926,25 @@ border-radius: 20ox;</string>
       <width>251</width>
       <height>201</height>
      </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="padLabel">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>530</y>
+      <width>81</width>
+      <height>71</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="pixmap">
+     <pixmap resource="project.qrc">:/pic/electrodePadOff.svg</pixmap>
+    </property>
+    <property name="scaledContents">
+     <bool>true</bool>
     </property>
    </widget>
   </widget>

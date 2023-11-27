@@ -19,6 +19,7 @@ class Patient
         int getHeartRate();
         bool notInContact();
         bool notChild();
+        bool hasPad();
         StateType getState();
         int getAmp();
     private:

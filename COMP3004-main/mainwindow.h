@@ -28,11 +28,10 @@ private:
 
     QTimer* mainProcessTimer;
     int currStep;
-    int anaylzingTime;
-    int cprTime;
+
     bool nextStep;
     bool operating;
-    bool coonnected;
+
     QVector<QPushButton*> stepImages;
 
     void changeDeviceState();
@@ -40,6 +39,7 @@ private:
     void initializeMainTimer(QTimer*);
     void initializeAedTimer(QTimer*);
     void setSimulateButtons(bool);
+
 private slots:
     void createPatient();
     void fillBattery();
@@ -51,5 +51,7 @@ private slots:
     void simulateDead();
     void simulateOther();
     void updateMainTimer();
+    void padSelecting(int);
+    void placePad();
 };
 #endif // MAINWINDOW_H

@@ -7,12 +7,11 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    patient = new Patient();
+    createPatient();
 
     mainProcessTimer = new QTimer(this);
 
-    anaylzingTime = 0;
-    cprTime = 0;
+
 
     //deviced initially set to off
     operating = false;
@@ -37,6 +36,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->electrodeConnectedCheckBox, &QCheckBox::clicked, this, &MainWindow::connectElectrode);
     connect(ui->batterySpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &MainWindow::changeBatteryLeft);
     connect(ui->fibrillationButton, &QPushButton::released, this, &MainWindow::simulateFib);
+    connect(ui->padSelectionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::padSelecting);
+    connect(ui->padPlacedCheckBox, &QCheckBox::clicked, this, &MainWindow::placePad);
 }
 
 MainWindow::~MainWindow()
@@ -50,6 +51,7 @@ void MainWindow::createPatient()
 {
     delete patient;
     patient = new Patient();
+
     //(patient->notChild()) ? ui->patientInfoAge->setText("Adult") : ui->patientInfoAge->setText("Child");
     ui->patientInfoAge->setText("Adult");
 }
@@ -59,6 +61,7 @@ void MainWindow::changeDeviceState()
     bool simulationEnabled = operating&&ui->electrodeConnectedCheckBox->isChecked();
     setSimulateButtons(simulationEnabled);
 
+
     ui->createPatientButton->setEnabled(!operating);
     ui->padSelectionComboBox->setEnabled(!operating); //set pad selection disabled because once electrode is connected and device is turned on, it can not be unplugged
     ui->electrodeConnectedCheckBox->setEnabled(!operating);
@@ -66,6 +69,7 @@ void MainWindow::changeDeviceState()
     ui->cprBar->setVisible(operating);
     ui->ecgWaveGraph->setVisible(operating);
     ui->blackScreen->setVisible(!operating);
+    ui->padLabel->setVisible(operating);
 }
 
 void MainWindow::togglePowerButton(bool checked)
@@ -73,10 +77,11 @@ void MainWindow::togglePowerButton(bool checked)
     if(aed.getBattery() > 0.0){
         operating = checked;
         changeDeviceState();
+        if(checked){
+            aed.newPatient(patient);
+        }
     }
-    else{
-        ui->powerOnButton->setChecked(false);
-    }
+    ui->powerOnButton->setChecked(checked);
 }
 
 void MainWindow::changeBatteryLeft(double batteryLeft)
@@ -116,9 +121,20 @@ void MainWindow::connectElectrode(bool connection)
     aed.setElectrode(connection);
     if(connection){
         ui->electrodeLabel->setText("Electrode connected");
+        if(ui->padSelectionComboBox->currentText()=="AdultPad"){
+            aed.setAdultPad(true);
+            aed.setChildPad(false);
+            ui->padLabel->setPixmap(QPixmap(":/pic/electrodeAdultPadOn"));
+        }
+        else{
+            aed.setAdultPad(false);
+            aed.setChildPad(true);
+            ui->padLabel->setPixmap(QPixmap(":/pic/electrodeChildPadOn"));
+        }
     }
     else{
         ui->electrodeLabel->setText("Electrode not connected");
+        ui->padLabel->setPixmap(QPixmap(":/pic/electrodePadOff"));
     }
 }
 
@@ -126,6 +142,7 @@ void MainWindow::simulateFib()
 {
     initializeMainTimer(mainProcessTimer);
     setSimulateButtons(false);
+    ui->padSelectionComboBox->setEnabled(false);
 }
 
 void MainWindow::simulateTach()
@@ -147,8 +164,12 @@ void MainWindow::initializeMainTimer(QTimer* t)
 {
     connect(t, &QTimer::timeout, this, &MainWindow::updateMainTimer);
     currStep = 1;
-    stepImages[0]->setChecked(true);
-    t->start(2000);
+    if(aed.selfCheck()){
+        stepImages[0]->setChecked(true);
+        t->start(2000);
+    }
+    //else()
+        //t->disconnect();
 }
 
 void MainWindow::updateMainTimer()
@@ -180,10 +201,19 @@ void MainWindow::updateMainTimer()
                     currStep++;
             break;
             case 3:
-                stepImages[2]->setChecked(false);
-                stepImages[3]->setChecked(true);
-                //if(nextStep)
+                if(patient->hasPad()){
+                    stepImages[2]->setChecked(false);
+                    stepImages[3]->setChecked(true);
                     currStep++;
+                }
+                else if(!aed.aedWaiting){
+                    connect(aed.getTimer(), &QTimer::timeout, &aed, &Aed::waitingForPad);
+                    initializeAedTimer(aed.getTimer());
+                }
+                else if(aed.waitPadTime == 3){
+                    stepImages[2]->setChecked(false);
+                    togglePowerButton(false);
+                }
             break;
             case 4:
                 stepImages[3]->setChecked(false);
@@ -201,10 +231,39 @@ void MainWindow::updateMainTimer()
     }
 }
 
-void MainWindow::setSimulateButtons(bool b)
+void MainWindow::setSimulateButtons(bool state)
 {
-    ui->deadPatientButton->setEnabled(b);
-    ui->fibrillationButton->setEnabled(b);
-    ui->tachycardiaButton->setEnabled(b);
-    ui->otherRhythmsButton->setEnabled(b);
+    ui->deadPatientButton->setEnabled(state);
+    ui->fibrillationButton->setEnabled(state);
+    ui->tachycardiaButton->setEnabled(state);
+    ui->otherRhythmsButton->setEnabled(state);
+}
+
+void MainWindow::padSelecting(int index)
+{
+    if(aed.isConnected()){
+        if(index == 0){
+            aed.setAdultPad(true);
+            aed.setChildPad(false);
+            ui->padLabel->setPixmap(QPixmap(":/pic/electrodeAdultPadOn"));
+        }
+        else{
+            aed.setAdultPad(false);
+            aed.setChildPad(true);
+            ui->padLabel->setPixmap(QPixmap(":/pic/electrodeChildPadOn"));
+        }
+    }
+}
+
+void MainWindow::initializeAedTimer(QTimer* aedTimer)
+{
+    aed.aedWaiting = true;
+    aedTimer->start(1000);
+}
+
+
+
+void MainWindow::placePad()
+{
+    patient->setPad();
 }
