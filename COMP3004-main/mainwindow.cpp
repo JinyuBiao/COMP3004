@@ -15,7 +15,7 @@ MainWindow::MainWindow(QWidget *parent)
     anaylzingTime = 0;
     cprTime = 0;
     aedWaiting = false;
-
+    currStep = 1;
 
     //deviced initially set to off
     operating = false;
@@ -85,6 +85,10 @@ void MainWindow::togglePowerButton(bool checked)
             aed.newPatient(patient);
         }
     }
+    if(aedWaiting){//if aed is turned off while it is still in process, set aedWaiting to false and stop all processes
+        aedWaiting = false;
+        stopProcess();
+    }
     ui->powerOnButton->setChecked(checked);
 }
 
@@ -144,6 +148,8 @@ void MainWindow::connectElectrode(bool connection)
 
 void MainWindow::simulateFib()
 {
+    currStep = 0;
+    aedWaiting = true;
     initializeMainTimer(mainProcessTimer);
     setSimulateButtons(false);
     ui->padSelectionComboBox->setEnabled(false);
@@ -167,9 +173,11 @@ void MainWindow::simulateOther()
 void MainWindow::initializeMainTimer(QTimer* t)
 {
     connect(t, &QTimer::timeout, this, &MainWindow::updateMainTimer);
-    currStep = 1;
-    if(aed.selfCheck()){
-        stepImages[0]->setChecked(true);
+
+    if(aed.selfCheck()){ //if selfcheck passed, the image on the first step button will be switched to the step1_light.svg by set the button to checked
+        qDebug() << "starting process " << QString::number(currStep);
+        stepImages[0]->setChecked(true); //this sets the first step button to checked, so the image will change, same for all other steps
+        currStep++;
         t->start(2000);
     }
     //else()
@@ -178,64 +186,45 @@ void MainWindow::initializeMainTimer(QTimer* t)
 
 void MainWindow::updateMainTimer()
 {
-    if(currStep == 6 || !operating){
-        if(!operating && currStep <= 5) //if users turn off device when the process (5 steps) is not over, uncheck the last step before turnning off
-            stepImages[currStep-1]->setChecked(false);
-        else if(currStep == 6){ //else all steps are completed, uncheck the last step
-            stepImages[4]->setChecked(false);
-            setSimulateButtons(true);
-        }
-        mainProcessTimer->stop();
-        mainProcessTimer->disconnect();
-    }
-    else{
-        consumingBattery(1);
+    consumingBattery(1);
 
-        switch(currStep){
-            case 1:
-                stepImages[0]->setChecked(false);
-                stepImages[1]->setChecked(true);
-                //if(nextStep)
-                    currStep++;
-            break;
-            case 2:
-                stepImages[1]->setChecked(false);
-                stepImages[2]->setChecked(true);
-                //if(nextStep)
-                    currStep++;
-            break;
-            case 3:
-                if(patient->hasPad()){
-                    stepImages[2]->setChecked(false);
-                    stepImages[3]->setChecked(true);
-                    currStep++;
-                }
-                else if(!aedWaiting){
-                    aedWaiting = true;
-                }
-                else{
-                    waitingForPad();
-                    if(waitPadTime == 2){
-                        aedWaiting = false;
-                        waitPadTime = 0;
-                        stepImages[2]->setChecked(false);
-                        togglePowerButton(false);
-                    }
-                }
-            break;
-            case 4:
-                stepImages[3]->setChecked(false);
-                stepImages[4]->setChecked(true);
-                //if(nextStep)
-                    currStep++;
-            break;
-            case 5:
-                //if(nextStep)
-                    stepImages[4]->setChecked(false);
-                    currStep++;
-                //else currStep--, back to the anaylzing step (step 4) if patient still needs treatment
-            break;
-        }
+    switch(currStep){
+        case 1://this finishes the first step (set first step button to unchecked) and start the second step
+            stepImages[0]->setChecked(false);
+            stepImages[1]->setChecked(true);
+            qDebug() << "starting process " << QString::number(currStep);
+            //if(nextStep)
+                currStep++;
+        break;
+        case 2://this finishes the second step and start the third step
+            stepImages[1]->setChecked(false);
+            stepImages[2]->setChecked(true);
+            qDebug() << "starting process " << QString::number(currStep);
+            //if(nextStep)
+                currStep++;
+        break;
+        case 3://this tries to finishes the third step (pad detection) and if finished, start the fourth step
+            padDetecting();
+        break;
+        case 4://this shall try to finish the fourth step (heart analyzing step) and if finished, start the fifth step
+            stepImages[3]->setChecked(false);
+            stepImages[4]->setChecked(true);
+            qDebug() << "starting process " << QString::number(currStep);
+            //if(nextStep)
+                currStep++;
+        break;
+        case 5://this shall try to finish the fifth step (cpr) and if finished, it shall determine patient's condition, to decide whether re run the heart analyzing step again or stop the process
+            //if(nextStep)
+                stepImages[4]->setChecked(false);
+                qDebug() << "starting process " << QString::number(currStep);
+                currStep++;
+                aedWaiting = false; //going next step at step 5 meaning cpr is done and patient is healthy, the process shall terminates
+            //otherwise currStep--, which means patient is not healthy and should continue doing shock and cpr, back to the anaylzing step (step 4) if patient still needs treatment
+        break;
+    }
+    if(!aedWaiting){
+        stopProcess();//aed not waiting meaning there is no process ongoing
+        setSimulateButtons(true); //whenever aed is not in a treatment process, all scenario simulation buttons should be enabled
     }
 }
 
@@ -278,10 +267,36 @@ void MainWindow::placePad()
 
 void MainWindow::waitingForPad()
 {
-    if(patient->hasPad() || waitPadTime == 3){
-        aedWaiting = false;
+    if(patient->hasPad() || waitPadTime == 2){
+        waitPadTime = 0;
+        stepImages[2]->setChecked(false);
+        togglePowerButton(false);
     }
     else{
         waitPadTime++;
     }
+}
+
+void MainWindow::padDetecting()
+{
+    if(patient->hasPad()){
+        stepImages[2]->setChecked(false);
+        stepImages[3]->setChecked(true);
+        qDebug() << "starting process " << QString::number(currStep);
+        currStep++;
+    }
+    else{
+        waitingForPad();
+        qDebug() << "waiting for pad at process " << QString::number(currStep-1);
+    }
+}
+
+void MainWindow::stopProcess()
+{
+    if(!operating && currStep <= 5){ //if users turn off device when the process (5 steps) is not over, uncheck the last step before turnning off
+        stepImages[currStep-1]->setChecked(false);
+        qDebug() << "stop at process " << QString::number(currStep-1);
+    }
+    mainProcessTimer->stop();
+    mainProcessTimer->disconnect();
 }

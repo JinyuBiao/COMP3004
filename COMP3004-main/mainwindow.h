@@ -28,10 +28,10 @@ private:
 
     QTimer* mainProcessTimer;
     int currStep;
-    int waitPadTime;
+    int waitPadTime;//used for the pad dectection step
     int anaylzingTime;
     int cprTime;
-    bool aedWaiting;
+    bool aedWaiting;//used for determine aed is in process or not
 
     bool nextStep;
     bool operating;
@@ -44,6 +44,8 @@ private:
     //void initializeAedTimer(QTimer*);
     void setSimulateButtons(bool);
     void waitingForPad();
+    void padDetecting();
+    void stopProcess();
 private slots:
     void createPatient();
     void fillBattery();
