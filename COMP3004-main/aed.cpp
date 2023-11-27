@@ -4,9 +4,6 @@ Aed::Aed()
 {
     timer = new QTimer(this);
     batteryLeft = 100;
-    anaylzingTime = 0;
-    cprTime = 0;
-    waitPadTime = 0;
 }
 
 Aed::~Aed()
@@ -65,18 +62,7 @@ void Aed::setElectrode(bool connection)
     connected = connection;
 }
 
-void Aed::waitingForPad()
-{
-    if(patient->hasPad() || waitPadTime == 3){
-        timer->stop();
-        timer->disconnect();
-        aedWaiting = false;
-        waitPadTime = 0;
-    }
-    else{
-        waitPadTime++;
-    }
-}
+
 
 bool Aed::selfCheck()
 {

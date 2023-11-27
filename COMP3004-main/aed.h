@@ -30,10 +30,7 @@ class Aed : public QObject
 
         double getBattery();
         int getCprDepth();
-        int waitPadTime;
-        int anaylzingTime;
-        int cprTime;
-        bool aedWaiting;
+
 
         StateType detectPatientState();
         QTimer* getTimer();
@@ -41,7 +38,7 @@ class Aed : public QObject
     public slots:
         void setChildPad(bool);
         void setAdultPad(bool);
-        void waitingForPad();
+        //void waitingForPad();
 
     private:
         double batteryLeft;

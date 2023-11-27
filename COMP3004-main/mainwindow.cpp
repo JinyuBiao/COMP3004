@@ -11,6 +11,10 @@ MainWindow::MainWindow(QWidget *parent)
 
     mainProcessTimer = new QTimer(this);
 
+    waitPadTime = 0;
+    anaylzingTime = 0;
+    cprTime = 0;
+    aedWaiting = false;
 
 
     //deviced initially set to off
@@ -206,13 +210,17 @@ void MainWindow::updateMainTimer()
                     stepImages[3]->setChecked(true);
                     currStep++;
                 }
-                else if(!aed.aedWaiting){
-                    connect(aed.getTimer(), &QTimer::timeout, &aed, &Aed::waitingForPad);
-                    initializeAedTimer(aed.getTimer());
+                else if(!aedWaiting){
+                    aedWaiting = true;
                 }
-                else if(aed.waitPadTime == 3){
-                    stepImages[2]->setChecked(false);
-                    togglePowerButton(false);
+                else{
+                    waitingForPad();
+                    if(waitPadTime == 2){
+                        aedWaiting = false;
+                        waitPadTime = 0;
+                        stepImages[2]->setChecked(false);
+                        togglePowerButton(false);
+                    }
                 }
             break;
             case 4:
@@ -255,15 +263,25 @@ void MainWindow::padSelecting(int index)
     }
 }
 
-void MainWindow::initializeAedTimer(QTimer* aedTimer)
+/*void MainWindow::initializeAedTimer(QTimer* aedTimer)
 {
     aed.aedWaiting = true;
     aedTimer->start(1000);
-}
+}*/
 
 
 
 void MainWindow::placePad()
 {
     patient->setPad();
+}
+
+void MainWindow::waitingForPad()
+{
+    if(patient->hasPad() || waitPadTime == 3){
+        aedWaiting = false;
+    }
+    else{
+        waitPadTime++;
+    }
 }

@@ -28,6 +28,10 @@ private:
 
     QTimer* mainProcessTimer;
     int currStep;
+    int waitPadTime;
+    int anaylzingTime;
+    int cprTime;
+    bool aedWaiting;
 
     bool nextStep;
     bool operating;
@@ -37,9 +41,9 @@ private:
     void changeDeviceState();
     void consumingBattery(double);
     void initializeMainTimer(QTimer*);
-    void initializeAedTimer(QTimer*);
+    //void initializeAedTimer(QTimer*);
     void setSimulateButtons(bool);
-
+    void waitingForPad();
 private slots:
     void createPatient();
     void fillBattery();
