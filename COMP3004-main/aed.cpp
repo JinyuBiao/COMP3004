@@ -31,22 +31,6 @@ void Aed::setCPRdepth(int d)
     cprDepth = d;
 }
 
-void Aed::doCPR(bool inCPR)
-{
-    cprPeriod = inCPR;
-}
-
-void Aed::startAnaylzing()
-{
-    anaylzing = true;
-}
-
-void Aed::noActivity()
-{
-    anaylzing = false;
-    cprPeriod = false;
-}
-
 void Aed::setAdultPad(bool placed)
 {
     AdultPad = placed;
@@ -62,10 +46,21 @@ void Aed::setElectrode(bool connection)
     connected = connection;
 }
 
-
+bool Aed::hasAdultPad()
+{
+    return (AdultPad);
+}
 
 bool Aed::selfCheck()
 {
+    if(batteryLeft<10){
+        //aed.lowBatteryMessage()
+        qInfo("low battery, turning on failed");
+    }
+    else if(!connected){
+        //aed.noElectrodeMessage()
+        qInfo("no electrode connected, turning on failed");
+    }
     return (batteryLeft>=5&&connected);
 }
 
@@ -99,19 +94,9 @@ bool Aed::detectShockable()//needs to add AedUI functions for printing after Aed
     return shockable;
 }
 
-bool Aed::isAnaylzing()
-{
-    return anaylzing;
-}
-
 bool Aed::isConnected()
 {
     return connected;
-}
-
-bool Aed::isDoingCPR()
-{
-    return cprPeriod;
 }
 
 double Aed::getBattery()

@@ -1,6 +1,6 @@
 QT       += core gui
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
 
 CONFIG += c++11
 
@@ -12,12 +12,14 @@ SOURCES += \
     aed.cpp \
     main.cpp \
     mainwindow.cpp \
-    patient.cpp
+    patient.cpp \
+    qcustomplot.cpp
 
 HEADERS += \
     patient.h \
     aed.h \
-    mainwindow.h
+    mainwindow.h \
+    qcustomplot.h
 
 FORMS += \
     mainwindow.ui
@@ -30,15 +32,4 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 RESOURCES += \
     project.qrc
 
-DISTFILES += \
-    pic/shockButton.svg \
-    pic/step1.svg \
-    pic/step1_light.svg \
-    pic/step2.svg \
-    pic/step2_light.svg \
-    pic/step3.svg \
-    pic/step3_light.svg \
-    pic/step4.svg \
-    pic/step4_light.svg \
-    pic/step5.svg \
-    pic/step5_light.svg
+DISTFILES +=

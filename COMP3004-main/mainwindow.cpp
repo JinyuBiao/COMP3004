@@ -9,13 +9,20 @@ MainWindow::MainWindow(QWidget *parent)
 
     createPatient();
 
+    ui->ecgWaveGraph->addGraph();
+    ui->ecgWaveGraph->xAxis->setRange(0,50);
+    ui->ecgWaveGraph->yAxis->setRange(0,2100);
+    ui->ecgWaveGraph->xAxis->setVisible(false);
+    ui->ecgWaveGraph->yAxis->setVisible(false);
+
     mainProcessTimer = new QTimer(this);
 
     waitPadTime = 0;
     anaylzingTime = 0;
     cprTime = 0;
+    ecgTime = 0.0;
     aedWaiting = false;
-    currStep = 1;
+    currStep = -1;
 
     //deviced initially set to off
     operating = false;
@@ -38,10 +45,15 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->powerOnButton, &QPushButton::clicked, this, &MainWindow::togglePowerButton);
     connect(ui->fillBatteryButton, &QPushButton::released, this, &MainWindow::fillBattery);
     connect(ui->electrodeConnectedCheckBox, &QCheckBox::clicked, this, &MainWindow::connectElectrode);
-    connect(ui->batterySpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &MainWindow::changeBatteryLeft);
-    connect(ui->fibrillationButton, &QPushButton::released, this, &MainWindow::simulateFib);
+    connect(ui->batterySpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &MainWindow::changeBatteryLeft);    
     connect(ui->padSelectionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::padSelecting);
     connect(ui->padPlacedCheckBox, &QCheckBox::clicked, this, &MainWindow::placePad);
+    connect(ui->changeAgeComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::changeAge);
+
+    connect(ui->fibrillationButton, &QPushButton::released, this, &MainWindow::simulateFib);
+    connect(ui->tachycardiaButton, &QPushButton::released, this, &MainWindow::simulateTach);
+    connect(ui->deadPatientButton, &QPushButton::released, this, &MainWindow::simulateDead);
+    connect(ui->otherRhythmsButton, &QPushButton::released, this, &MainWindow::simulateOther);
 }
 
 MainWindow::~MainWindow()
@@ -78,7 +90,7 @@ void MainWindow::changeDeviceState()
 
 void MainWindow::togglePowerButton(bool checked)
 {
-    if(aed.getBattery() > 0.0){
+    if(aed.selfCheck()){
         operating = checked;
         changeDeviceState();
         if(checked){
@@ -89,7 +101,8 @@ void MainWindow::togglePowerButton(bool checked)
         aedWaiting = false;
         stopProcess();
     }
-    ui->powerOnButton->setChecked(checked);
+    qDebug() << "turning off ";
+    ui->powerOnButton->setChecked(operating);
 }
 
 void MainWindow::changeBatteryLeft(double batteryLeft)
@@ -148,26 +161,26 @@ void MainWindow::connectElectrode(bool connection)
 
 void MainWindow::simulateFib()
 {
-    currStep = 0;
-    aedWaiting = true;
-    initializeMainTimer(mainProcessTimer);
-    setSimulateButtons(false);
-    ui->padSelectionComboBox->setEnabled(false);
+    patient->setState(fibrillation);
+    startProcess();
 }
 
 void MainWindow::simulateTach()
 {
-
+    patient->setState(tachycardia);
+    startProcess();
 }
 
 void MainWindow::simulateDead()
 {
-
+    patient->setState(dead);
+    startProcess();
 }
 
 void MainWindow::simulateOther()
 {
-
+    patient->setState(other);
+    startProcess();
 }
 
 void MainWindow::initializeMainTimer(QTimer* t)
@@ -177,6 +190,7 @@ void MainWindow::initializeMainTimer(QTimer* t)
     if(aed.selfCheck()){ //if selfcheck passed, the image on the first step button will be switched to the step1_light.svg by set the button to checked
         qDebug() << "starting process " << QString::number(currStep);
         stepImages[0]->setChecked(true); //this sets the first step button to checked, so the image will change, same for all other steps
+        updatingEcg(1,1000);
         currStep++;
         t->start(2000);
     }
@@ -186,32 +200,31 @@ void MainWindow::initializeMainTimer(QTimer* t)
 
 void MainWindow::updateMainTimer()
 {
+
     consumingBattery(1);
+
 
     switch(currStep){
         case 1://this finishes the first step (set first step button to unchecked) and start the second step
             stepImages[0]->setChecked(false);
             stepImages[1]->setChecked(true);
             qDebug() << "starting process " << QString::number(currStep);
-            //if(nextStep)
-                currStep++;
+            updatingEcg(10,1000);
+            currStep++;
         break;
         case 2://this finishes the second step and start the third step
             stepImages[1]->setChecked(false);
             stepImages[2]->setChecked(true);
             qDebug() << "starting process " << QString::number(currStep);
-            //if(nextStep)
-                currStep++;
+            updatingEcg(10,1000);
+            currStep++;
         break;
         case 3://this tries to finishes the third step (pad detection) and if finished, start the fourth step
             padDetecting();
         break;
         case 4://this shall try to finish the fourth step (heart analyzing step) and if finished, start the fifth step
-            stepImages[3]->setChecked(false);
-            stepImages[4]->setChecked(true);
-            qDebug() << "starting process " << QString::number(currStep);
-            //if(nextStep)
-                currStep++;
+            startAnaylzing();
+            qDebug() << "doing process " << QString::number(currStep);
         break;
         case 5://this shall try to finish the fifth step (cpr) and if finished, it shall determine patient's condition, to decide whether re run the heart analyzing step again or stop the process
             //if(nextStep)
@@ -224,6 +237,10 @@ void MainWindow::updateMainTimer()
     }
     if(!aedWaiting){
         stopProcess();//aed not waiting meaning there is no process ongoing
+        qDebug() << "stop at process " << QString::number(currStep-1);
+        if(!operating){
+            togglePowerButton(false);
+        }
         setSimulateButtons(true); //whenever aed is not in a treatment process, all scenario simulation buttons should be enabled
     }
 }
@@ -252,14 +269,6 @@ void MainWindow::padSelecting(int index)
     }
 }
 
-/*void MainWindow::initializeAedTimer(QTimer* aedTimer)
-{
-    aed.aedWaiting = true;
-    aedTimer->start(1000);
-}*/
-
-
-
 void MainWindow::placePad()
 {
     patient->setPad();
@@ -270,7 +279,8 @@ void MainWindow::waitingForPad()
     if(patient->hasPad() || waitPadTime == 2){
         waitPadTime = 0;
         stepImages[2]->setChecked(false);
-        togglePowerButton(false);
+        operating = false;
+        aedWaiting = false;
     }
     else{
         waitPadTime++;
@@ -282,7 +292,7 @@ void MainWindow::padDetecting()
     if(patient->hasPad()){
         stepImages[2]->setChecked(false);
         stepImages[3]->setChecked(true);
-        qDebug() << "starting process " << QString::number(currStep);
+        qDebug() << "starting detecting pad at process " << QString::number(currStep);
         currStep++;
     }
     else{
@@ -295,8 +305,89 @@ void MainWindow::stopProcess()
 {
     if(!operating && currStep <= 5){ //if users turn off device when the process (5 steps) is not over, uncheck the last step before turnning off
         stepImages[currStep-1]->setChecked(false);
-        qDebug() << "stop at process " << QString::number(currStep-1);
     }
     mainProcessTimer->stop();
     mainProcessTimer->disconnect();
+    ui->ecgWaveGraph->xAxis->setRange(0, 50);
+    ui->ecgWaveGraph->graph(0)->data()->clear();
+    ui->ecgWaveGraph->replot();
+    ecgTime = 0;
+}
+
+void MainWindow::startProcess()
+{
+    currStep = 0;
+    aedWaiting = true;
+    initializeMainTimer(mainProcessTimer);
+    setSimulateButtons(false);
+    ui->padSelectionComboBox->setEnabled(false);
+    ui->changeAgeComboBox->setEnabled(false);
+}
+
+void MainWindow::changeAge()
+{
+    patient->changeAge();
+    if(patient->notChild())
+        ui->patientInfoAge->setText("Adult");
+    else
+        ui->patientInfoAge->setText("Child");
+}
+
+void MainWindow::startAnaylzing()
+{
+    if(anaylzingTime < 7){
+        if(!patient->hasPad())
+            patient->setState(dead);
+        generateHeartData();
+        //code for displaying ecg goes here:
+        anaylzingTime++;
+    }
+    else if(anaylzingTime == 7 && !aed.detectShockable()){
+        qDebug() << "no shock needed, on to the next step";
+        stepImages[3]->setChecked(false);
+        stepImages[4]->setChecked(true);
+        currStep++;
+    }
+    else if(!ui->shockButton->isChecked()){
+        ui->shockButton->setEnabled(true);
+        patient->setHeartData();
+        generateHeartData();
+        qDebug() << "waiting for delivering shock";
+    }
+    else{
+        double newRemainingBattery = (aed.hasAdultPad()) ? qMax(aed.getBattery() - 10, 0.0) : qMax(aed.getBattery() - 5, 0.0);
+        changeBatteryLeft(newRemainingBattery);
+        ui->shockButton->setChecked(false);
+        ui->shockButton->setEnabled(false);
+        stepImages[3]->setChecked(false);
+        stepImages[4]->setChecked(true);
+        currStep++;
+    }
+}
+
+void MainWindow::updatingEcg(double x, double y)
+{
+    ecgTime += x;
+    ui->ecgWaveGraph->graph(0)->addData(ecgTime,y);
+    if(ecgTime > 50){
+        ui->ecgWaveGraph->xAxis->setRange(ecgTime-50, ecgTime+10);
+    }
+    ui->ecgWaveGraph->replot();
+}
+
+void MainWindow::generateHeartData()
+{
+    patient->setHeartData();
+
+    if(patient->getState()==tachycardia){
+        updatingEcg(2,patient->getAmp()+1000);
+        updatingEcg(2,1000-patient->getAmp());
+        updatingEcg(2,1000);
+        updatingEcg(patient->getHeartRate()/30,1000);
+    }
+    else{
+        double randomInvertal = (rand()%9+4)/(rand()%3+1);
+        updatingEcg(randomInvertal,patient->getAmp()+1000);
+        updatingEcg(randomInvertal,patient->getAmp());
+    }
 }

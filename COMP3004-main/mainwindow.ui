@@ -17,13 +17,13 @@
    <string notr="true">background-color: gray;</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QWidget" name="ecgWaveGraph" native="true">
+   <widget class="QCustomPlot" name="ecgWaveGraph" native="true">
     <property name="geometry">
      <rect>
-      <x>180</x>
+      <x>150</x>
       <y>140</y>
-      <width>251</width>
-      <height>201</height>
+      <width>281</width>
+      <height>241</height>
      </rect>
     </property>
     <property name="autoFillBackground">
@@ -35,8 +35,8 @@
     <widget class="QProgressBar" name="cprBar">
      <property name="geometry">
       <rect>
-       <x>220</x>
-       <y>40</y>
+       <x>250</x>
+       <y>60</y>
        <width>31</width>
        <height>111</height>
       </rect>
@@ -63,7 +63,7 @@ background-color: lightblue;</string>
       <rect>
        <x>0</x>
        <y>0</y>
-       <width>251</width>
+       <width>281</width>
        <height>21</height>
       </rect>
      </property>
@@ -79,7 +79,7 @@ background-color: lightblue;</string>
      <widget class="QProgressBar" name="batteryLevelBar">
       <property name="geometry">
        <rect>
-        <x>200</x>
+        <x>230</x>
         <y>0</y>
         <width>51</width>
         <height>21</height>
@@ -142,8 +142,8 @@ background-color: black;</string>
    <widget class="QPushButton" name="shockButton">
     <property name="geometry">
      <rect>
-      <x>260</x>
-      <y>350</y>
+      <x>250</x>
+      <y>380</y>
       <width>91</width>
       <height>91</height>
      </rect>
@@ -407,10 +407,10 @@ QPushButton {
               </size>
              </property>
              <property name="currentText">
-              <string/>
+              <string>Adult</string>
              </property>
              <property name="currentIndex">
-              <number>-1</number>
+              <number>0</number>
              </property>
              <item>
               <property name="text">
@@ -711,8 +711,8 @@ QPushButton {
    <widget class="QLabel" name="label_7">
     <property name="geometry">
      <rect>
-      <x>270</x>
-      <y>440</y>
+      <x>260</x>
+      <y>480</y>
       <width>91</width>
       <height>17</height>
      </rect>
@@ -724,8 +724,8 @@ QPushButton {
    <widget class="QPushButton" name="powerOnButton">
     <property name="geometry">
      <rect>
-      <x>370</x>
-      <y>500</y>
+      <x>380</x>
+      <y>480</y>
       <width>141</width>
       <height>121</height>
      </rect>
@@ -772,8 +772,8 @@ QPushButton {
    <widget class="QPushButton" name="step1">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>150</y>
+      <x>10</x>
+      <y>170</y>
       <width>131</width>
       <height>111</height>
      </rect>
@@ -834,7 +834,7 @@ QPushButton {
     <property name="geometry">
      <rect>
       <x>440</x>
-      <y>110</y>
+      <y>170</y>
       <width>131</width>
       <height>111</height>
      </rect>
@@ -861,8 +861,8 @@ QPushButton {
    <widget class="QPushButton" name="step4">
     <property name="geometry">
      <rect>
-      <x>420</x>
-      <y>360</y>
+      <x>440</x>
+      <y>340</y>
       <width>131</width>
       <height>111</height>
      </rect>
@@ -889,8 +889,8 @@ QPushButton {
    <widget class="QPushButton" name="step5">
     <property name="geometry">
      <rect>
-      <x>50</x>
-      <y>360</y>
+      <x>30</x>
+      <y>380</y>
       <width>181</width>
       <height>151</height>
      </rect>
@@ -918,16 +918,6 @@ border-radius: 20ox;</string>
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="QOpenGLWidget" name="blackScreen">
-    <property name="geometry">
-     <rect>
-      <x>180</x>
-      <y>140</y>
-      <width>251</width>
-      <height>201</height>
-     </rect>
-    </property>
-   </widget>
    <widget class="QLabel" name="padLabel">
     <property name="geometry">
      <rect>
@@ -947,6 +937,16 @@ border-radius: 20ox;</string>
      <bool>true</bool>
     </property>
    </widget>
+   <widget class="QOpenGLWidget" name="blackScreen">
+    <property name="geometry">
+     <rect>
+      <x>150</x>
+      <y>140</y>
+      <width>281</width>
+      <height>241</height>
+     </rect>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -960,6 +960,14 @@ border-radius: 20ox;</string>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QCustomPlot</class>
+   <extends>QWidget</extends>
+   <header>qcustomplot.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="project.qrc"/>
  </resources>

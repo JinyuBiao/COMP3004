@@ -11,7 +11,7 @@ class Patient
     public:
         Patient(bool=true,bool=false,bool=true,StateType=dead,int=0);
         ~Patient();
-        void setChild();
+        void changeAge();
         void setPad();
         void setStandClear();
         void setState(StateType);

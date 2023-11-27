@@ -15,18 +15,14 @@ class Aed : public QObject
         void setBattery(double);
         void newPatient(Patient*);
         void setCPRdepth(int);
-        void doCPR(bool);
-        void startAnaylzing();
-        void noActivity();
         void resetPatientStatus();
         void setElectrode(bool);
 
         bool selfCheck();
         bool detectPad();
         bool detectShockable();
-        bool isAnaylzing();
         bool isConnected();
-        bool isDoingCPR();
+        bool hasAdultPad();
 
         double getBattery();
         int getCprDepth();
@@ -58,9 +54,6 @@ class Aed : public QObject
         bool functionalVoicePrompt;			//default to true
         bool functionalVisualIndicator;		//default to true
         */
-
-        bool anaylzing;         //indicates whether aed is detecting rhythms
-        bool cprPeriod;
 
         Patient* patient;
         QTimer* timer;

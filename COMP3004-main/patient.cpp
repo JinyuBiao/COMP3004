@@ -7,7 +7,7 @@ Patient::Patient(bool a, bool p, bool c, StateType d, int r):
 Patient::~Patient()
 {}
 
-void Patient::setChild()
+void Patient::changeAge()
 {
     isAdult = !isAdult;
 }
@@ -31,7 +31,7 @@ void Patient::setHeartData()
 {
     switch(currState){
         case fibrillation:
-            heartAmp = ((rand()%2000)+1);
+            heartAmp = ((rand()%1000)+1);
             if(heartRate==0)
                 heartRate = 1; //assume heart rate for fibrillation is 1
             break;
@@ -39,7 +39,7 @@ void Patient::setHeartData()
             if(heartRate==0)
                 heartRate = (isAdult) ? rand()%100 + 101 : rand()%100 + 121; //generates number between 101 to 200 for adult heart rate, otherwise between 121 to 220 for child heart rate
             if(heartAmp==0)
-                heartAmp = 1000; //append to Amplitude array with amplitude 1000 for 20 times
+                heartAmp = rand()%201 + 800; //append to Amplitude array with amplitude 1000 for 20 times
             break;
         case dead:
             if(heartAmp!=0)

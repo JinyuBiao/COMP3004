@@ -6,8 +6,10 @@
 #include <QLabel>
 #include <QDebug>
 #include <QPushButton>
+
 #include "patient.h"
 #include "aed.h"
+#include "qcustomplot.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -31,6 +33,7 @@ private:
     int waitPadTime;//used for the pad dectection step
     int anaylzingTime;
     int cprTime;
+    double ecgTime;
     bool aedWaiting;//used for determine aed is in process or not
 
     bool nextStep;
@@ -46,6 +49,10 @@ private:
     void waitingForPad();
     void padDetecting();
     void stopProcess();
+    void startProcess();
+    void startAnaylzing();
+    void updatingEcg(double,double);
+    void generateHeartData();
 private slots:
     void createPatient();
     void fillBattery();
@@ -59,5 +66,6 @@ private slots:
     void updateMainTimer();
     void padSelecting(int);
     void placePad();
+    void changeAge();
 };
 #endif // MAINWINDOW_H
