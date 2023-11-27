@@ -90,29 +90,30 @@ void MainWindow::changeDeviceState()
 
 void MainWindow::togglePowerButton(bool checked)
 {
-    if(aed.selfCheck()){
-        operating = checked;
-        changeDeviceState();
-        if(checked){
+    if(checked){
+        if(aed.selfCheck()){
+            operating = checked;
+            changeDeviceState();
             aed.newPatient(patient);
             qDebug() << "turning on ";
         }
-        else{
-            qDebug() << "turning off ";
+    }
+    else{
+        operating = false;
+        changeDeviceState();
+        if(aedWaiting){//if aed is turned off while it is still in process, set aedWaiting to false and stop all processes
+            aedWaiting = operating;
+            stopProcess();
         }
+        qDebug() << "turning off ";
     }
-    if(aedWaiting){//if aed is turned off while it is still in process, set aedWaiting to false and stop all processes
-        aedWaiting = false;
-        stopProcess();
-    }
-
     ui->powerOnButton->setChecked(operating);
 }
 
 void MainWindow::changeBatteryLeft(double batteryLeft)
 {
     if(batteryLeft >= 0.0 && batteryLeft <= 100.0){
-        if(batteryLeft == 0 && operating){
+        if(batteryLeft <= 0 && operating){
             togglePowerButton(false);
             ui->powerOnButton->setChecked(false);
         }
@@ -202,7 +203,9 @@ void MainWindow::updateMainTimer()
 
     consumingBattery(1);
 
-
+    if(aed.getBattery()<=0.0){
+        aedWaiting = false;
+    }
     switch(currStep){
         case 1://this finishes the first step (set first step button to unchecked) and start the second step
             stepImages[0]->setChecked(false);
@@ -225,7 +228,7 @@ void MainWindow::updateMainTimer()
             startAnaylzing();
             qDebug() << "doing process " << QString::number(currStep);
         break;
-        case 5://this shall try to finish the fifth step (cpr) and if finished, it shall determine patient's condition, to decide whether re run the heart analyzing step again or stop the process
+        case 5://this shall try to finish the fifth step (cpr) and if finished, it shall determine patient's condition, to decide whether re run the heart analyzing step again or stop the processif
             //if(nextStep)
                 stepImages[4]->setChecked(false);
                 qDebug() << "starting process " << QString::number(currStep);
@@ -240,7 +243,7 @@ void MainWindow::updateMainTimer()
         if(!operating){
             togglePowerButton(false);
         }
-        setSimulateButtons(true); //whenever aed is not in a treatment process, all scenario simulation buttons should be enabled
+        setSimulateButtons(operating); //whenever aed is not in a treatment process, all scenario simulation buttons should be enabled
     }
 }
 
@@ -275,11 +278,13 @@ void MainWindow::placePad()
 
 void MainWindow::waitingForPad()
 {
-    if(patient->hasPad() || waitPadTime == 2){
+    if(patient->hasPad() || waitPadTime >= 2){
         waitPadTime = 0;
         stepImages[2]->setChecked(false);
-        operating = false;
         aedWaiting = false;
+        if(!patient->hasPad()){
+            operating = false;
+        }
     }
     else{
         waitPadTime++;
