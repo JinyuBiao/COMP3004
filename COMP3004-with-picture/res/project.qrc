@@ -1,0 +1,20 @@
+<RCC>
+    <qresource prefix="/">
+        <file>electrode/electrodeAdultPadOn.png</file>
+        <file>electrode/electrodeChildPadOn.png</file>
+        <file>powerbutton/powerOff.svg</file>
+        <file>powerbutton/powerOn.svg</file>
+        <file>shockbutton/shockButton.svg</file>
+        <file>shockbutton/shockButton_on.svg</file>
+        <file>step-off/step1.png</file>
+        <file>step-off/step2.png</file>
+        <file>step-off/step3.png</file>
+        <file>step-off/step4.png</file>
+        <file>step-off/step5.png</file>
+        <file>step-on/step1_light.png</file>
+        <file>step-on/step2_light.png</file>
+        <file>step-on/step3_light.png</file>
+        <file>step-on/step4_light.png</file>
+        <file>step-on/step5_light.png</file>
+    </qresource>
+</RCC>
