@@ -338,6 +338,10 @@ void MainWindow::stopProcess()
     ui->currScenarioLabel->clear();
     anaylzingTime = 0;
     ecgTime = 0;
+    cprCount = 0;
+    patient->clearHeartData();
+    ui->cprCount->display(0);
+    setPatientInfo("Unknown");
 }
 
 void MainWindow::startProcess()
@@ -375,6 +379,7 @@ void MainWindow::startAnaylzing()
         generateHeartData();
     }
     else{
+        setPatientInfo("not Unknown");
         if(aed.detectPatientState()==dead || aed.detectPatientState()==healthy){
             aedWaiting = false;
             qDebug() << "either flatline signal, healthy signal or no signal detected, stop the process";
@@ -404,8 +409,6 @@ void MainWindow::startAnaylzing()
             currStep++;
         }
     }
-    ui->patientInfoHeartRate->setText(QString::number(patient->getHeartRate()));
-    ui->patientInfoCondition->setText(patient->getCurrState());
 }
 
 void MainWindow::updatingEcg(double x, double y)
@@ -475,6 +478,8 @@ void MainWindow::doCpr()
         currStep--;
         stepImages[3]->setChecked(true);
         ui->cprCount->display(cprCount);
+        patient->clearHeartData();
+        setPatientInfo("Unknown");
     }
 }
 
@@ -521,5 +526,17 @@ void MainWindow::cprBarDrop()
         previousCpr = 0;
         cprBarDropTimer->stop();
         cprBarDropTimer->disconnect();
+    }
+}
+
+void MainWindow::setPatientInfo(QString state)
+{
+    if(state != "Unknown"){
+        ui->patientInfoHeartRate->setText(QString::number(patient->getHeartRate()));
+        ui->patientInfoCondition->setText(patient->getCurrState());
+    }
+    else{
+        ui->patientInfoHeartRate->setText(state);
+        ui->patientInfoCondition->setText(state);
     }
 }

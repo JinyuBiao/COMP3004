@@ -58,6 +58,7 @@ private:
     void updatingEcg(double,double);
     void generateHeartData();
     void doCpr();
+    void setPatientInfo(QString);
 private slots:
     void fillBattery();
     void togglePowerButton(bool);

@@ -16,6 +16,7 @@ class Patient
         void setStandClear();
         void setState(StateType);
         void setHeartData();
+        void clearHeartData();
         int getHeartRate();
         bool inContact();
         bool notChild();

@@ -62,6 +62,12 @@ void Patient::setHeartData()
     }
 }
 
+void Patient::clearHeartData()
+{
+    heartAmp = 0;
+    heartRate = 0;
+}
+
 int Patient::getHeartRate()
 {
     return heartRate;
