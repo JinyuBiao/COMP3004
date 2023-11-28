@@ -53,15 +53,21 @@ bool Aed::hasAdultPad()
 
 bool Aed::selfCheck()
 {
-    if(batteryLeft<15){
-        //aed.lowBatteryMessage()
-        qInfo("low battery, turning on failed");
+    bool checkResult = batteryLeft>=15&&connected;
+    if(checkResult){
+        qInfo("self tet passed");
     }
-    else if(!connected){
-        //aed.noElectrodeMessage()
-        qInfo("no electrode connected, turning on failed");
+    else{
+        if(batteryLeft<15){
+            //aed.lowBatteryMessage()
+            qInfo("low battery, self test failed, aed can not work");
+        }
+        else{
+            //aed.noElectrodeMessage()
+            qInfo("no electrode connected, self test failed, aed can not work");
+        }
     }
-    return (batteryLeft>=15&&connected);
+    return (checkResult);
 }
 
 bool Aed::detectPad()
@@ -113,11 +119,13 @@ StateType Aed::detectPatientState()
 {
     StateType state = dead;
     if(detectPad()){
-        if(patient->notInContact()){
-            state = patient->getState();
-        }
-        else{
-            state = healthy;
+        if(patient->hasPad()){
+            if(!(patient->inContact())){
+                state = patient->getState();
+            }
+            else{
+                state = healthy;
+            }
         }
     }
     return(state);

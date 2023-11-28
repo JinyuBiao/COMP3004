@@ -16,5 +16,8 @@
         <file>step-on/step3_light.png</file>
         <file>step-on/step4_light.png</file>
         <file>step-on/step5_light.png</file>
+        <file>selfTest/selfTestFailed.png</file>
+        <file>selfTest/selfTestPast.png</file>
+        <file>electrode/electrodePadOff.png</file>
     </qresource>
 </RCC>

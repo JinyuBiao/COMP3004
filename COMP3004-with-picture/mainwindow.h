@@ -29,23 +29,27 @@ private:
     Patient* patient;
 
     QTimer* mainProcessTimer;
+    QTimer* cprBarDropTimer;
     int currStep;
     int waitPadTime;//used for the pad dectection step
     int anaylzingTime;
     int cprTime;
+    int cprCount;
+    int previousCpr;
     double ecgTime;
-    bool aedWaiting;//used for determine aed is in process or not
 
+    bool aedWaiting;//used for determine aed is in process or not
     bool nextStep;
     bool operating;
 
     QVector<QPushButton*> stepImages;
+    QVector<QPushButton*> cprButtons;
 
     void changeDeviceState();
     void consumingBattery(double);
     void initializeMainTimer(QTimer*);
-    //void initializeAedTimer(QTimer*);
     void setSimulateButtons(bool);
+    void setCprButtons(bool);
     void waitingForPad();
     void padDetecting();
     void stopProcess();
@@ -53,8 +57,8 @@ private:
     void startAnaylzing();
     void updatingEcg(double,double);
     void generateHeartData();
+    void doCpr();
 private slots:
-    void createPatient();
     void fillBattery();
     void togglePowerButton(bool);
     void changeBatteryLeft(double);
@@ -67,5 +71,7 @@ private slots:
     void padSelecting(int);
     void placePad();
     void changeAge();
+    void cprPush();
+    void cprBarDrop();
 };
 #endif // MAINWINDOW_H

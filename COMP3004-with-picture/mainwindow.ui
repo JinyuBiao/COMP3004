@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1309</width>
-    <height>769</height>
+    <height>780</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,34 +16,40 @@
   <property name="styleSheet">
    <string notr="true">background-color: gray;</string>
   </property>
+  <property name="iconSize">
+   <size>
+    <width>24</width>
+    <height>24</height>
+   </size>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QCustomPlot" name="ecgWaveGraph" native="true">
     <property name="geometry">
      <rect>
-      <x>240</x>
-      <y>140</y>
-      <width>351</width>
-      <height>291</height>
+      <x>200</x>
+      <y>130</y>
+      <width>411</width>
+      <height>301</height>
      </rect>
     </property>
     <property name="autoFillBackground">
      <bool>false</bool>
     </property>
     <property name="styleSheet">
-     <string notr="true">background-color:white;</string>
+     <string notr="true"/>
     </property>
     <widget class="QProgressBar" name="cprBar">
      <property name="geometry">
       <rect>
-       <x>320</x>
-       <y>90</y>
+       <x>380</x>
+       <y>80</y>
        <width>31</width>
        <height>111</height>
       </rect>
      </property>
      <property name="styleSheet">
-      <string notr="true">selection-background-color: black;
-background-color: lightblue;</string>
+      <string notr="true">selection-background-color:gray;
+background-color: lightgreen;</string>
      </property>
      <property name="value">
       <number>0</number>
@@ -63,7 +69,7 @@ background-color: lightblue;</string>
       <rect>
        <x>0</x>
        <y>0</y>
-       <width>351</width>
+       <width>411</width>
        <height>21</height>
       </rect>
      </property>
@@ -79,7 +85,7 @@ background-color: lightblue;</string>
      <widget class="QProgressBar" name="batteryLevelBar">
       <property name="geometry">
        <rect>
-        <x>300</x>
+        <x>360</x>
         <y>0</y>
         <width>51</width>
         <height>21</height>
@@ -99,8 +105,7 @@ background-color: lightblue;</string>
        <bool>false</bool>
       </property>
       <property name="styleSheet">
-       <string notr="true">selection-background-color: green;
-background-color: black;</string>
+       <string notr="true">selection-background-color:green;</string>
       </property>
       <property name="minimum">
        <number>0</number>
@@ -138,14 +143,45 @@ background-color: black;</string>
       </property>
      </widget>
     </widget>
-    <widget class="QOpenGLWidget" name="blackScreen">
+    <widget class="QLabel" name="label_12">
      <property name="geometry">
       <rect>
-       <x>0</x>
-       <y>0</y>
-       <width>351</width>
-       <height>291</height>
+       <x>340</x>
+       <y>200</y>
+       <width>71</width>
+       <height>20</height>
       </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: black;
+color: white;</string>
+     </property>
+     <property name="text">
+      <string>CPR count:</string>
+     </property>
+    </widget>
+    <widget class="QLCDNumber" name="cprCount">
+     <property name="geometry">
+      <rect>
+       <x>360</x>
+       <y>220</y>
+       <width>51</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QLCDNumber{
+  background-color: rgb(0, 0, 0);
+  border: 2px solid rgb(0, 0, 0);
+  border-width: 2px;
+  border-radius: 10px;
+}</string>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::Box</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
      </property>
     </widget>
    </widget>
@@ -304,7 +340,7 @@ QPushButton {
    <widget class="QPushButton" name="step2">
     <property name="geometry">
      <rect>
-      <x>360</x>
+      <x>350</x>
       <y>10</y>
       <width>131</width>
       <height>111</height>
@@ -368,8 +404,8 @@ QPushButton {
    <widget class="QPushButton" name="step4">
     <property name="geometry">
      <rect>
-      <x>600</x>
-      <y>370</y>
+      <x>630</x>
+      <y>360</y>
       <width>131</width>
       <height>111</height>
      </rect>
@@ -445,6 +481,9 @@ border-radius: 20ox;</string>
     <property name="text">
      <string/>
     </property>
+    <property name="pixmap">
+     <pixmap resource="res/project.qrc">:/electrode/electrodePadOff.png</pixmap>
+    </property>
     <property name="scaledContents">
      <bool>true</bool>
     </property>
@@ -488,7 +527,7 @@ border-radius: 20ox;</string>
      <string notr="true">background-color: lightgray;</string>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab_3">
      <attribute name="title">
@@ -507,12 +546,34 @@ border-radius: 20ox;</string>
        <property name="geometry">
         <rect>
          <x>0</x>
-         <y>230</y>
+         <y>300</y>
          <width>521</width>
-         <height>371</height>
+         <height>301</height>
         </rect>
        </property>
        <layout class="QGridLayout" name="gridLayout_2">
+        <item row="1" column="1">
+         <widget class="QPushButton" name="deadPatientButton">
+          <property name="minimumSize">
+           <size>
+            <width>100</width>
+            <height>100</height>
+           </size>
+          </property>
+          <property name="tabletTracking">
+           <bool>false</bool>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">QPushButton:hover:!pressed
+{
+  border: 1px solid red;
+}</string>
+          </property>
+          <property name="text">
+           <string>Simulate Dead Patient</string>
+          </property>
+         </widget>
+        </item>
         <item row="0" column="0">
          <widget class="QPushButton" name="tachycardiaButton">
           <property name="minimumSize">
@@ -576,37 +637,15 @@ border-radius: 20ox;</string>
           </property>
          </widget>
         </item>
-        <item row="1" column="1">
-         <widget class="QPushButton" name="deadPatientButton">
-          <property name="minimumSize">
-           <size>
-            <width>100</width>
-            <height>100</height>
-           </size>
-          </property>
-          <property name="tabletTracking">
-           <bool>false</bool>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">QPushButton:hover:!pressed
-{
-  border: 1px solid red;
-}</string>
-          </property>
-          <property name="text">
-           <string>Simulate Dead Patient</string>
-          </property>
-         </widget>
-        </item>
        </layout>
       </widget>
       <widget class="QLabel" name="label">
        <property name="geometry">
         <rect>
-         <x>190</x>
-         <y>210</y>
+         <x>200</x>
+         <y>300</y>
          <width>131</width>
-         <height>61</height>
+         <height>21</height>
         </rect>
        </property>
        <property name="text">
@@ -641,27 +680,34 @@ border-radius: 20ox;</string>
         <property name="spacing">
          <number>5</number>
         </property>
-        <item row="4" column="0">
-         <widget class="QLabel" name="testPanelLabel_5">
-          <property name="minimumSize">
-           <size>
-            <width>200</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>30</height>
-           </size>
-          </property>
+        <item row="0" column="1">
+         <widget class="QPushButton" name="fillBatteryButton">
           <property name="text">
-           <string>New patient</string>
+           <string>Fill Battery</string>
           </property>
          </widget>
         </item>
-        <item row="0" column="0">
-         <widget class="QLabel" name="testPanelLabel_1">
+        <item row="3" column="2">
+         <widget class="QCheckBox" name="electrodeConnectedCheckBox">
+          <property name="maximumSize">
+           <size>
+            <width>80</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">QCheckBox::indicator{
+	width: 20px;
+	height: 20px;
+}</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0">
+         <widget class="QLabel" name="testPanelLabel_6">
           <property name="minimumSize">
            <size>
             <width>200</width>
@@ -675,7 +721,23 @@ border-radius: 20ox;</string>
            </size>
           </property>
           <property name="text">
-           <string>Change remaining battery</string>
+           <string>Touch patient</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="QDoubleSpinBox" name="batterySpinBox">
+          <property name="maximumSize">
+           <size>
+            <width>80</width>
+            <height>25</height>
+           </size>
+          </property>
+          <property name="maximum">
+           <double>100.000000000000000</double>
+          </property>
+          <property name="value">
+           <double>100.000000000000000</double>
           </property>
          </widget>
         </item>
@@ -711,13 +773,6 @@ border-radius: 20ox;</string>
           </item>
          </widget>
         </item>
-        <item row="0" column="1">
-         <widget class="QPushButton" name="fillBatteryButton">
-          <property name="text">
-           <string>Fill Battery</string>
-          </property>
-         </widget>
-        </item>
         <item row="1" column="0">
          <widget class="QLabel" name="testPanelLabel_2">
           <property name="minimumSize">
@@ -734,79 +789,6 @@ border-radius: 20ox;</string>
           </property>
           <property name="text">
            <string>Change age group</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="testPanelLabel_3">
-          <property name="minimumSize">
-           <size>
-            <width>200</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>30</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>Pad placed</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="2">
-         <widget class="QCheckBox" name="electrodeConnectedCheckBox">
-          <property name="maximumSize">
-           <size>
-            <width>80</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">QCheckBox::indicator{
-	width: 20px;
-	height: 20px;
-}</string>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="2">
-         <widget class="QDoubleSpinBox" name="batterySpinBox">
-          <property name="maximumSize">
-           <size>
-            <width>80</width>
-            <height>25</height>
-           </size>
-          </property>
-          <property name="maximum">
-           <double>100.000000000000000</double>
-          </property>
-          <property name="value">
-           <double>100.000000000000000</double>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0">
-         <widget class="QLabel" name="testPanelLabel_4">
-          <property name="minimumSize">
-           <size>
-            <width>200</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>30</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>Electrode connected</string>
           </property>
          </widget>
         </item>
@@ -829,15 +811,8 @@ border-radius: 20ox;</string>
           </property>
          </widget>
         </item>
-        <item row="4" column="2">
-         <widget class="QPushButton" name="createPatientButton">
-          <property name="text">
-           <string>CreatNew</string>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="0">
-         <widget class="QLabel" name="testPanelLabel_6">
+        <item row="0" column="0">
+         <widget class="QLabel" name="testPanelLabel_1">
           <property name="minimumSize">
            <size>
             <width>200</width>
@@ -851,11 +826,30 @@ border-radius: 20ox;</string>
            </size>
           </property>
           <property name="text">
-           <string>Touch patient</string>
+           <string>Change remaining battery</string>
           </property>
          </widget>
         </item>
-        <item row="5" column="2">
+        <item row="2" column="0">
+         <widget class="QLabel" name="testPanelLabel_3">
+          <property name="minimumSize">
+           <size>
+            <width>200</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Pad placed</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="2">
          <widget class="QCheckBox" name="patientTouchedCheckBox">
           <property name="styleSheet">
            <string notr="true">QCheckBox::indicator{
@@ -897,7 +891,102 @@ border-radius: 20ox;</string>
           </item>
          </widget>
         </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="testPanelLabel_4">
+          <property name="minimumSize">
+           <size>
+            <width>200</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Electrode connected</string>
+          </property>
+         </widget>
+        </item>
        </layout>
+      </widget>
+      <widget class="QWidget" name="gridLayoutWidget_4">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>240</y>
+         <width>511</width>
+         <height>61</height>
+        </rect>
+       </property>
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="0" column="1">
+         <widget class="QPushButton" name="cprPushHarder">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>50</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>1 inch</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QPushButton" name="cprNoneDetectablePush">
+          <property name="minimumSize">
+           <size>
+            <width>100</width>
+            <height>50</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>0.5 inch</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="QPushButton" name="cprGoodPush">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>50</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>2 inches</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QLabel" name="label_10">
+       <property name="geometry">
+        <rect>
+         <x>230</x>
+         <y>220</y>
+         <width>71</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>CPR push</string>
+       </property>
+       <property name="textFormat">
+        <enum>Qt::AutoText</enum>
+       </property>
       </widget>
      </widget>
     </widget>
@@ -915,47 +1004,21 @@ border-radius: 20ox;</string>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_4">
-       <item row="2" column="1">
-        <widget class="QLabel" name="patientInfoCondition">
-         <property name="maximumSize">
-          <size>
-           <width>80</width>
-           <height>16777215</height>
-          </size>
-         </property>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_3">
          <property name="text">
-          <string>unknown</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QLabel" name="patientInfoHeartRate">
-         <property name="maximumSize">
-          <size>
-           <width>80</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>unknown</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QLabel" name="patientInfoAge">
-         <property name="maximumSize">
-          <size>
-           <width>80</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>unknown</string>
+          <string>Heart rate</string>
          </property>
         </widget>
        </item>
        <item row="2" column="0">
         <widget class="QLabel" name="label_4">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="text">
           <string>Heart condition</string>
          </property>
@@ -968,16 +1031,181 @@ border-radius: 20ox;</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="label_3">
+       <item row="0" column="1">
+        <widget class="QLabel" name="patientInfoAge">
+         <property name="minimumSize">
+          <size>
+           <width>200</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>200</width>
+           <height>16777215</height>
+          </size>
+         </property>
          <property name="text">
-          <string>Heart rate</string>
+          <string>unknown</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLabel" name="patientInfoHeartRate">
+         <property name="minimumSize">
+          <size>
+           <width>200</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>160</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>unknown</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QLabel" name="patientInfoCondition">
+         <property name="minimumSize">
+          <size>
+           <width>200</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>80</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>unknown</string>
          </property>
         </widget>
        </item>
       </layout>
      </widget>
     </widget>
+   </widget>
+   <widget class="QTextBrowser" name="currScenarioLabel">
+    <property name="geometry">
+     <rect>
+      <x>870</x>
+      <y>660</y>
+      <width>351</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>DejaVu Serif</family>
+      <pointsize>15</pointsize>
+      <weight>75</weight>
+      <italic>true</italic>
+      <bold>true</bold>
+      <underline>false</underline>
+      <strikeout>false</strikeout>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color: yellow;</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::Panel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Sunken</enum>
+    </property>
+    <property name="lineWidth">
+     <number>3</number>
+    </property>
+    <property name="midLineWidth">
+     <number>0</number>
+    </property>
+    <property name="html">
+     <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Roboto','DejaVu Serif'; font-size:15pt; font-weight:600; font-style:italic;&quot;&gt;
+&lt;p align=&quot;center&quot; style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Roboto'; font-size:20px; font-style:normal;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_9">
+    <property name="geometry">
+     <rect>
+      <x>1000</x>
+      <y>630</y>
+      <width>111</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">font-size: 18px;
+</string>
+    </property>
+    <property name="text">
+     <string>Simulating</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="selfTestLight">
+    <property name="geometry">
+     <rect>
+      <x>270</x>
+      <y>630</y>
+      <width>71</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="icon">
+     <iconset resource="res/project.qrc">
+      <normaloff>:/selfTest/selfTestFailed.png</normaloff>
+      <normalon>:/selfTest/selfTestPast.png</normalon>
+      <disabledoff>:/selfTest/selfTestFailed.png</disabledoff>
+      <disabledon>:/selfTest/selfTestPast.png</disabledon>:/selfTest/selfTestFailed.png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>194</width>
+      <height>200</height>
+     </size>
+    </property>
+    <property name="checkable">
+     <bool>true</bool>
+    </property>
+    <property name="checked">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_11">
+    <property name="geometry">
+     <rect>
+      <x>250</x>
+      <y>700</y>
+      <width>121</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>self test indicator</string>
+    </property>
+   </widget>
+   <widget class="QOpenGLWidget" name="blackScreen">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>130</y>
+      <width>411</width>
+      <height>301</height>
+     </rect>
+    </property>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">

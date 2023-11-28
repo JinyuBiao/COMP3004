@@ -17,11 +17,12 @@ class Patient
         void setState(StateType);
         void setHeartData();
         int getHeartRate();
-        bool notInContact();
+        bool inContact();
         bool notChild();
         bool hasPad();
         StateType getState();
         int getAmp();
+        QString getCurrState();
     private:
         bool isAdult;
         bool padPlaced;

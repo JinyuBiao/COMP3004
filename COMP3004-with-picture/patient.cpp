@@ -50,8 +50,8 @@ void Patient::setHeartData()
                 heartAmp = 0;
             break;
         case healthy:
-            heartRate = (isAdult) ? rand()%41+60 : rand()%41 + 80; //generates number between 60 to 100 for adult heart rate otherwise between 80 to 120 for child heart rate
-            heartAmp = 1000; //generate heart amplitude 1000 if haven't already
+            heartRate = (isAdult) ? 80 : 100; //generates 80 for adult heart rate otherwise between 100 for child heart rate
+            heartAmp = 800; //generate heart amplitude 800 if haven't already
             break;
         case other:
             if(heartRate==0)
@@ -67,9 +67,9 @@ int Patient::getHeartRate()
     return heartRate;
 }
 
-bool Patient::notInContact()
+bool Patient::inContact()
 {
-    return standClear;
+    return !standClear;
 }
 
 bool Patient::notChild()
@@ -90,4 +90,22 @@ int Patient::getAmp()
 StateType Patient::getState()
 {
     return currState;
+}
+
+QString Patient::getCurrState()
+{
+    switch(currState){
+        case fibrillation:
+            return("ventricular fibrillation");
+        case tachycardia:
+            return("ventricular tachycardia");
+        case other:
+            return("other conditions");
+        case dead:
+            return("flatlined");
+        case healthy:
+            return("healthy");
+        default:
+            return("unknown");
+    }
 }
