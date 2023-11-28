@@ -737,12 +737,7 @@ background-color: black;</string>
      <string notr="true"/>
     </property>
     <property name="text">
-     <string/>
-    </property>
-    <property name="icon">
-     <iconset resource="project.qrc">
-      <normaloff>:/pic/powerOff.svg</normaloff>
-      <normalon>:/pic/powerOn.svg</normalon>:/pic/powerOff.svg</iconset>
+     <string>Power</string>
     </property>
     <property name="iconSize">
      <size>

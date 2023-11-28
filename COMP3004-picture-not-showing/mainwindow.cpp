@@ -54,6 +54,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->tachycardiaButton, &QPushButton::released, this, &MainWindow::simulateTach);
     connect(ui->deadPatientButton, &QPushButton::released, this, &MainWindow::simulateDead);
     connect(ui->otherRhythmsButton, &QPushButton::released, this, &MainWindow::simulateOther);
+    qDebug("Please Check electro pads placement and electrode connection.(checkboxes)");
+    qDebug("Turn on the device by pressing the power button.");
 }
 
 MainWindow::~MainWindow()
@@ -208,10 +210,15 @@ void MainWindow::updateMainTimer()
         aedWaiting = false;
     }
     switch(currStep){
-        case 1://this finishes the first step (set first step button to unchecked) and start the second step
+        case 1://this finishes the first step
+        //(set first step button to unchecked)
+        //and start the second step
             stepImages[0]->setChecked(false);
             stepImages[1]->setChecked(true);
             qDebug() << "starting process " << QString::number(currStep);
+            qDebug("Please confirm the patient is unconscious.");
+            qDebug("Please confirm the patient does not have normal breathing.");
+            qDebug("Please confirm the patient has an absence of a pulse or signs of circulation.");
             updatingEcg(10,1000);
             currStep++;
         break;
@@ -219,10 +226,12 @@ void MainWindow::updateMainTimer()
             stepImages[1]->setChecked(false);
             stepImages[2]->setChecked(true);
             qDebug() << "starting process " << QString::number(currStep);
+            qDebug("Please call 911 or the local emergency number.");
             updatingEcg(10,1000);
             currStep++;
         break;
         case 3://this tries to finishes the third step (pad detection) and if finished, start the fourth step
+            qDebug("Checking for proper pad placement.");
             padDetecting();
         break;
         case 4://this shall try to finish the fourth step (heart analyzing step) and if finished, start the fifth step

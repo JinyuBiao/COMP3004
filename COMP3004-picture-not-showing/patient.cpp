@@ -33,15 +33,20 @@ void Patient::setHeartData()
 {
     switch(currState){
         case fibrillation:
-            heartAmp = ((rand()%1000)+1);//generate random heart amplitude between 1 to 1000, since it is realistic for fibrillation
+            heartAmp = ((rand()%1000)+1);
+            //generate random heart amplitude between 1 to 1000
+            //, since it is realistic for fibrillation
             if(heartRate==0)
-                heartRate = 1; //assume heart rate for fibrillation is 1 (heart rate for fibrillation is actually impossible to detect)
+                heartRate = 1;
+            //assume heart rate for fibrillation is 1
+            //(heart rate for fibrillation is actually impossible to detect)
             break;
         case tachycardia:
             if(heartRate==0)
                 heartRate = (isAdult) ? rand()%100 + 101 : rand()%100 + 121; //generates heart rate between 101 to 200 for adult heart rate, otherwise between 121 to 220 for child heart rate, if haven't already
             if(heartAmp==0)
-                heartAmp = rand()%201 + 800; //generate heart amplitude between 800 to 1000 if haven't already
+                heartAmp = rand()%201 + 800;
+            //generate heart amplitude between 800 to 1000 if haven't already
             break;
         case dead:
             if(heartAmp!=0)
