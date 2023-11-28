@@ -167,6 +167,7 @@ void MainWindow::connectElectrode(bool connection)
         }
     }
     else{
+        aedWaiting = false;
         ui->padLabel->setPixmap(QPixmap(":/electrode/electrodePadOff"));
     }
     if(!aedWaiting && operating)//only updates self test light when aed is not in process and aed is on
