@@ -169,7 +169,7 @@ void MainWindow::connectElectrode(bool connection)
     else{
         ui->padLabel->setPixmap(QPixmap(":/electrode/electrodePadOff"));
     }
-    if(!aedWaiting)//only updates self test light when aed is not in process
+    if(!aedWaiting && operating)//only updates self test light when aed is not in process and aed is on
         ui->selfTestLight->setChecked(aed.selfCheck());
 }
 
