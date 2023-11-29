@@ -6,7 +6,35 @@
 #include <QTimer>
 #include "patient.h"
 
-class Aed : public QObject
+/* Purpose of Class: Simulate aed functions
+ *
+ * Data Members:
+ *  double batteryLeft: current battery
+ *  int heartRate: analyzed heart rate
+ *  int heartAmp: analyzed heart amp
+ *  bool connected:	if it has electrode connected
+ *  bool ChildPad: if the connected electrode pad is Child pad
+ *  bool AdultPad: if the connected electrode pad is Adult pad
+ *  StateType detectedState: the detected rhythm, used for generating heart data
+ *  Patient* patient: the patient
+ *
+ * Class Functions:
+ *  Getters and Setters
+ *  void fillBattery(): set battery to 100
+ *  void setBattery(double): change battery to a certain value
+ *  void newPatient(Patient*): set patient
+ *  void setConnected(bool): set connection of electrode
+ *  void setHeartData(): generate heart data base on detected heart rhythm
+ *  void clearHeartData(): clear last analyzed data (before cpr)
+ *
+ *  bool selfCheck(): check battery level and electrode connection
+ *  bool detectPad(): detect if there is a electrode connected and also pad placed on patient
+ *  bool detectShockable(): determine if detected rhythm is shockable
+ *  bool isConnected(): getter of whether there is electrode connection
+ *  bool hasAdultPad(): getter of whether the pad used is adultpad
+ */
+
+class Aed
 {
     public:
         Aed();
@@ -14,9 +42,10 @@ class Aed : public QObject
         void fillBattery();
         void setBattery(double);
         void newPatient(Patient*);
-        void setCPRdepth(int);
-        void resetPatientStatus();
-        void setElectrode(bool);
+        void setConnected(bool);
+        void setHeartData();
+        void clearHeartData();
+        void setDetectedState(StateType);
 
         bool selfCheck();
         bool detectPad();
@@ -25,12 +54,12 @@ class Aed : public QObject
         bool hasAdultPad();
 
         double getBattery();
-        int getCprDepth();
+        int getAmp();
+        int getHeartRate();
 
 
-        StateType detectPatientState();
-        QTimer* getTimer();
-
+        StateType getDetectedState();
+        QString getDetectedStateString();
     public slots:
         void setChildPad(bool);
         void setAdultPad(bool);
@@ -39,7 +68,8 @@ class Aed : public QObject
     private:
         double batteryLeft;
 
-        int cprDepth;
+        int heartRate;
+        int heartAmp;
 
         bool connected;	//default to false
         bool ChildPad;//default to false
@@ -55,8 +85,8 @@ class Aed : public QObject
         bool functionalVisualIndicator;		//default to true
         */
 
+        StateType detectedState;
         Patient* patient;
-        QTimer* timer;
 };
 
 #endif // AED_H

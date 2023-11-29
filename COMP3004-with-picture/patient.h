@@ -6,35 +6,32 @@
 
 typedef enum {fibrillation, tachycardia, dead, healthy, other} StateType;
 
+/* Purpose of Class: To store information about patient
+ *
+ * Data Members:
+ *  bool isAdult: indicate whether patient is adult or not, it is used for generate heart rate data
+ *  StateType currState: the current actual state of patient, it is used for touching patient scenario for showing that aed detects wrong heart data
+ *
+ * Class Functions:
+ *  Getters and Setters
+ *  QString getStateString(): returns currState in string
+ *  void changeAge(): change the isAdult bool value
+ */
+
 class Patient
 {
     public:
-        Patient(bool=true,bool=false,bool=true,StateType=dead,int=0);
+        Patient(bool=true,StateType=dead);
         ~Patient();
         void changeAge();
-        void setPad();
-        void setStandClear();
         void setState(StateType);
-        void setHeartData();
-        void clearHeartData();
-        int getHeartRate();
-        bool inContact();
+
         bool notChild();
-        bool hasPad();
         StateType getState();
-        int getAmp();
-        QString getCurrState();
+        QString getStateString();
     private:
         bool isAdult;
-        bool padPlaced;
-        //bool healthy;
-        bool standClear;
-
-        //bool cardiacArrhythmia;
         StateType currState;
-
-        int heartRate; //in microvolts
-        int heartAmp; //heart amplitudes in an array
 };
 
 #endif // PATIENT_H
