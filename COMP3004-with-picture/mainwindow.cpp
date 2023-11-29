@@ -276,8 +276,17 @@ void MainWindow::updateMainTimer()
             startAnaylzing();
         break;
         case 5://this shall try to finish the fifth step (cpr) and if finished, it shall determine patient's condition, to decide whether re run the heart analyzing step again or stop the process if patient is dead
-
             doCpr();
+            if(currCpr == 0){
+                ui->cprPrompt->setText("DO CPR PUSHES or PUSH HARDER");
+            }
+            //if it is an adult pad, pushing 1 inch is not enough
+            else if(currCpr == 1 && aed.hasAdultPad()){
+                ui->cprPrompt->setText("PUSH HARDER");
+            }
+            if(previousCpr == 1 && currCpr == 2 && aed.hasAdultPad()){
+                ui->cprPrompt->setText("GOOD PUSH, PLEASE KEEP IT UP");
+            }
              //going next step at step 5 meaning cpr is done and patient is healthy, the process shall terminates
             //otherwise currStep--, which means patient is not healthy and should continue doing shock and cpr, back to the anaylzing step (step 4) if patient still needs treatment
         break;
@@ -527,16 +536,6 @@ void MainWindow::generateHeartData()
 void MainWindow::doCpr()
 {
     if(cprTime <= CPR_TIME){
-        if(currCpr == 0){
-            ui->cprPrompt->setText("DO CPR PUSHES or PUSH HARDER");
-        }
-        //if it is an adult pad, pushing 1 inch is not enough
-        else if(currCpr == 1 && aed.hasAdultPad()){
-            ui->cprPrompt->setText("PUSH HARDER");
-        }
-        if(previousCpr == 1 && currCpr == 2 && aed.hasAdultPad()){
-            ui->cprPrompt->setText("GOOD PUSH, PLEASE KEEP IT UP");
-        }
         cprTime++;
         qDebug() << "in cpr period, please do cpr, current time elapsed for cpr:" << QString::number(cprTime*2) << "seconds";
     }
