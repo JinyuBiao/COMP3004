@@ -111,6 +111,7 @@ void MainWindow::togglePowerButton(bool checked)
         changeDeviceState();
         if(aedWaiting){//if aed is turned off while it is still in process, set aedWaiting to false and stop all processes
             aedWaiting = operating;
+            waitPadTime = 0; //reset pad waiting time
             stopProcess();
         }
         qDebug() << "turning off ";
@@ -130,6 +131,7 @@ void MainWindow::changeBatteryLeft(double batteryLeft)
         ui->batteryLevelBar->setValue(batteryLeft);
 
         if(batteryLeft <= 20){
+            qInfo("Battery low, please fill the battery in time!");
             ui->batteryLevelBar->setStyleSheet("QProgressBar { selection-background-color: red; background-color: gray;}");
         }
         else{
@@ -140,6 +142,7 @@ void MainWindow::changeBatteryLeft(double batteryLeft)
 
 void MainWindow::fillBattery()
 {
+    qInfo("Battery successfully filled");
     changeBatteryLeft(100.0);
 }
 
@@ -168,6 +171,7 @@ void MainWindow::connectElectrode(bool connection)
     }
     else{
         aedWaiting = false;
+        ui->electrodeLabel->setText("Electrode not connected");
         ui->padLabel->setPixmap(QPixmap(":/electrode/electrodePadOff"));
     }
     if(!aedWaiting && operating)//only updates self test light when aed is not in process and aed is on
@@ -211,6 +215,7 @@ void MainWindow::initializeMainTimer(QTimer* t)
     connect(t, &QTimer::timeout, this, &MainWindow::updateMainTimer);
     qDebug() << "starting process " << QString::number(currStep);
     stepImages[0]->setChecked(true); //this sets the first step button to checked, so the image will change, same for all other steps
+    qDebug() << "Process 1: Checking if the patient is OK";
     updatingEcg(1,1000);
     currStep++;
     t->start(2000);
@@ -229,6 +234,7 @@ void MainWindow::updateMainTimer()
             stepImages[0]->setChecked(false);
             stepImages[1]->setChecked(true);
             qDebug() << "starting process " << QString::number(currStep);
+            qDebug() << "Process 2: Calling emergency service";
             updatingEcg(10,1000);
             currStep++;
         break;
@@ -236,6 +242,7 @@ void MainWindow::updateMainTimer()
             stepImages[1]->setChecked(false);
             stepImages[2]->setChecked(true);
             qDebug() << "starting process " << QString::number(currStep);
+            qDebug() << "Process 3: Wating pad placement";
             updatingEcg(10,1000);
             currStep++;
         break;
@@ -291,6 +298,7 @@ void MainWindow::placePad()
     patient->setPad();
     if(currStep == 4){
         if(!patient->hasPad()){
+            qInfo("Pad is not attached, patient is dead");
             patient->setState(dead);
         }
     }
@@ -298,16 +306,19 @@ void MainWindow::placePad()
 
 void MainWindow::waitingForPad()
 {
-    if((patient->hasPad() && aed.isConnected()) || waitPadTime >= 2){
+    if((patient->hasPad() && aed.isConnected()) || waitPadTime >= 5){
         waitPadTime = 0;
         stepImages[2]->setChecked(false);
         aedWaiting = false;
         if(!patient->hasPad()){
+            qDebug() << "Waiting time reached 5. No action was performed. System timed out.";
             operating = false;
+            waitPadTime = 0; //reset wait time
         }
     }
     else{
         waitPadTime++;
+        qDebug() << "Current waiting time is " << QString::number(waitPadTime);
     }
 }
 
@@ -316,7 +327,7 @@ void MainWindow::padDetecting()
     if(patient->hasPad()&&aed.isConnected()){
         stepImages[2]->setChecked(false);
         stepImages[3]->setChecked(true);
-        qDebug() << "starting detecting pad at process " << QString::number(currStep);
+        qDebug() << "start detecting pad at process " << QString::number(currStep);
         currStep++;
     }
     else{
@@ -447,7 +458,7 @@ void MainWindow::doCpr()
     bool cprPeriod = (cprTime <= CPR_TIME);
     if(cprPeriod){
         if(previousCpr == 0){
-            qInfo("CONTINUE CPR");
+            qInfo("DO CPR PUSHES or PUSH HARDER");
         }
         else if(previousCpr == 1){
             qInfo("PUSH HARDER");
@@ -469,9 +480,11 @@ void MainWindow::doCpr()
         }
         if(patientDiePossibility <= 1){
             patient->setState(dead);
+            qInfo("Patient is dead");
         }
         else if(patientHealthyPossibility <= 1){
             patient->setState(healthy);
+            qInfo("Patient is healthy");
         }
         setCprButtons(false);
         cprCount = 0;
@@ -496,7 +509,7 @@ void MainWindow::cprPush()
     for(int i=0; i<3; ++i){
         if(cprButtons[i]->isChecked()){
             if(previousCpr == 1 && i == 2){
-                qInfo("GOOD PUSH");
+                qInfo("GOOD PUSH, PLEASE KEEP IT UP");
             }
             previousCpr = i;
             cprButtons[i]->setChecked(false);

@@ -55,12 +55,12 @@ bool Aed::selfCheck()
 {
     bool checkResult = batteryLeft>=15&&connected;
     if(checkResult){
-        qInfo("self tet passed");
+        qInfo("self test passed");
     }
     else{
         if(batteryLeft<15){
             //aed.lowBatteryMessage()
-            qInfo("low battery, self test failed, aed can not work");
+            qInfo("low battery, self test failed, aed can not work! Please fill the battery.");
         }
         else{
             //aed.noElectrodeMessage()
@@ -84,11 +84,14 @@ bool Aed::detectShockable()//needs to add AedUI functions for printing after Aed
         }
         else if(detectPatientState()==dead){
             //AedUI methods to warning a flatline or no signal detected on console goes here:
+            qInfo("Patient has flatlined or no signal detected, shock is disabled");
+            shockable = false;
 
         }
         else{
             //AedUI methods to state that patient is healthy on console goes here:
-
+            qInfo("Patient is healthy, a shock is not required.");
+            shockable = false;
         }
     }
     else{
