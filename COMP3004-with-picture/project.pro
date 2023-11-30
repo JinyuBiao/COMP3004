@@ -14,15 +14,15 @@ TEMPLATE = app
 resources_dir = res
 
 SOURCES += \
-    aed.cpp \
+    dataProcessor.cpp \
     main.cpp \
     mainwindow.cpp \
     patient.cpp \
     qcustomplot.cpp
 
 HEADERS += \
+    dataProcessor.h \
     patient.h \
-    aed.h \
     mainwindow.h \
     qcustomplot.h
 

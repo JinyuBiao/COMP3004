@@ -8,13 +8,13 @@
 #include <QPushButton>
 
 #include "patient.h"
-#include "aed.h"
+#include "dataProcessor.h"
 #include "qcustomplot.h"
 
 /* Class Purpose: The main window of the application, acts as the control of the application
  *
  * Data Members:
- *   Aed aed: aed
+ *   DataProcessor dataprocessor: the processor for aed, used for self check and generating heart data
  *   Patient* patient: patient pointer
  *
  *   QTimer* mainProcessTimer: the timer for simulating the procedure of aed (step 1 to cpr step), once this timer is stopped, it means the scenario is finished and aed is waiting for next scenario
@@ -82,7 +82,7 @@ public:
 
 private:
     Ui::MainWindow *ui;
-    Aed aed;
+    DataProcessor dataProcessor;
     Patient* patient;
 
     QTimer* mainProcessTimer;
@@ -117,6 +117,8 @@ private:
     void generateHeartData();
     void doCpr();
     void setPatientInfo(QString);
+    void cprPrompt();
+
 private slots:
     void fillBattery();
     void togglePowerButton(bool);
@@ -133,5 +135,7 @@ private slots:
     void cprPush();
     void cprBarDrop();
     void setPatientTouched(bool);
+    void givingShock();
+
 };
 #endif // MAINWINDOW_H
