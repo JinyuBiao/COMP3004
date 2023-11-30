@@ -564,8 +564,7 @@ void MainWindow::doCpr()
             aed.setDetectedState(healthy);
             qInfo("Patient is healthy");
         }
-        //back to analyzing step to determine if patient is dead, healthy or unhealthy, if patient is unhealthy,
-        //clear previous patient heart data and generate new heart data, since after doing cpr, heart data should be changed
+        //back to analyzing step to determine if cpr period is finished, since after doing cpr, heart data should be reanalyzed
         setCprButtons(false);
         cprCount = 0;
         cprTime = 0;
