@@ -52,6 +52,7 @@ class DataProcessor
         bool detectShockable();
         bool isConnected();
         bool hasAdultPad();
+        bool hasChildPad();
 
         double getBattery();
         int getAmp();

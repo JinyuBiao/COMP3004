@@ -279,29 +279,25 @@ void MainWindow::updateMainTimer()
         break;
         case 5://this shall try to finish the fifth step (cpr) and if finished, it shall determine patient's condition, to decide whether re run the heart analyzing step again or stop the process if patient is dead
             ui->cprCount->display(cprCount);
-            if(dataProcessor.detectPad()){
-                if(currCpr == 0){
-                    ui->cprPrompt->setText("DO CPR PUSHES or PUSH HARDER");
-                }
-                else{
-                    cprPrompt();
-                }
-                //if it is an adult pad, pushing 1 inch is not enough
-                currCpr = 0;
-                doCpr();
+            if(currCpr == 0){
+                ui->cprPrompt->setText("DO CPR PUSHES or PUSH HARDER");
             }
             else{
-                aedWorking = false;
+                cprPrompt();
             }
+            //if it is an adult pad, pushing 1 inch is not enough
+            currCpr = 0;
+            doCpr();
         break;
     }
     //whenever aedWorking is set to false, stop the process
     if(!aedWorking){
-        stopProcess();//aed not waiting meaning there is no process ongoing
         qDebug() << "stop at process " << QString::number(currStep);
-        if(!operating){
+        stopProcess();//aed not waiting meaning there is no process o ngoing
+        if(!operating)
             togglePowerButton(false);
-        }
+        else if(!dataProcessor.isConnected())
+            qInfo("electrode unplugged during the process, stop working!");
         setSimulateButtons(operating); //whenever aed is not in a treatment process, all scenario simulation buttons should be enabled
     }
 }
@@ -353,6 +349,9 @@ void MainWindow::placePad(bool placed)
         if(!dataProcessor.detectPad()){
             qInfo("Pad is not attached, patient is dead");
             dataProcessor.setDetectedState(dead);
+        }
+        else{
+            dataProcessor.setDetectedState(simulatedState);
         }
     }
 }
@@ -410,12 +409,14 @@ void MainWindow::stopProcess()
     ui->ecgWaveGraph->graph(0)->data()->clear();
     ui->ecgWaveGraph->replot();
     ui->currScenarioLabel->clear();
+    ui->cprPrompt->clear();
 
     anaylzingTime = 0;
     waveGraphX = 0;
     cprCount = 0;
+    ui->cprCount->display(cprCount);
     dataProcessor.clearHeartData();
-    ui->cprCount->display(0);
+    setCprButtons(false);
 }
 
 void MainWindow::startProcess()
@@ -601,24 +602,25 @@ void MainWindow::cprPush()
         if(cprButtons[i]->isChecked()){
             currCpr = i;
             cprButtons[i]->setChecked(false);
-
+            if(dataProcessor.detectPad()){
             //if push is above or equals to 1 inch
-            if(i != 0){
-                ui->cprPrompt->clear();
-                cprPrompt();
-                //make sure cprBarDropTimer is stopped and disconnected
-                if(ui->cprBar->value() > 0){
-                    cprBarDropTimer->stop();
-                    cprBarDropTimer->disconnect();
-                }
-                ui->cprBar->setValue(i*40);
-                connect(cprBarDropTimer, &QTimer::timeout, this, &MainWindow::cprBarDrop);
-                cprBarDropTimer->start(CPR_BAR_DROP_RATE);
+                if(i != 0){
+                    ui->cprPrompt->clear();
+                    cprPrompt();
+                    //make sure cprBarDropTimer is stopped and disconnected
+                    if(ui->cprBar->value() > 0){
+                        cprBarDropTimer->stop();
+                        cprBarDropTimer->disconnect();
+                    }
+                    ui->cprBar->setValue(i*40);
+                    connect(cprBarDropTimer, &QTimer::timeout, this, &MainWindow::cprBarDrop);
+                    cprBarDropTimer->start(CPR_BAR_DROP_RATE);
 
-                //if it is a child pad, pushing 1 or 2 inches should be a good push, otherwise only 2 inches is a good push
-                if(!dataProcessor.hasAdultPad() || (i == 2 && dataProcessor.hasAdultPad()))
-                    cprCount++;
-                ui->cprCount->display(cprCount);
+                    //if it is a child pad, pushing 1 or 2 inches should be a good push, otherwise only 2 inches is a good push
+                    if(dataProcessor.hasChildPad() || (currCpr == 2 && dataProcessor.hasAdultPad()))
+                       cprCount++;
+                    ui->cprCount->display(cprCount);
+                }
             }
             break;
         }
@@ -668,7 +670,7 @@ void MainWindow::cprPrompt()
             ui->cprPrompt->setText("PUSH HARDER");
         }
         //if the pad is for adult, and previous push is 1 inch, while current push is 2 inches, prompts a good push message
-        else if((previousCpr == 1 && currCpr == 2 && dataProcessor.hasAdultPad()) || !dataProcessor.hasAdultPad()){
+        else if((previousCpr == 1 && currCpr == 2 && dataProcessor.hasAdultPad()) || dataProcessor.hasChildPad()){
             ui->cprPrompt->setText("GOOD PUSH, PLEASE KEEP IT UP");
         }
         previousCpr = currCpr;

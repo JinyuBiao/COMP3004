@@ -90,6 +90,11 @@ bool DataProcessor::hasAdultPad()
     return (AdultPad);
 }
 
+bool DataProcessor::hasChildPad()
+{
+    return (ChildPad);
+}
+
 bool DataProcessor::selfCheck()
 {
     bool checkResult = batteryLeft>=15&&connected;
