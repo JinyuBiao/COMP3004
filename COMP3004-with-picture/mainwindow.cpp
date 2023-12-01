@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#define ANALYZING_TIME 4 //the end time for analyzing
+#define ANALYZING_TIME 6 //the end time for analyzing
 #define CPR_TIME 10 //the end time for cpr, actual time is CPR_TIME*2 seconds
 #define WAIT_PAD_TIME 5 //the end time for waiting pad
 #define MAIN_PROCESS_TIME_INTERVAL 2000 //the time interval for main process timer, 1000 = 1s
@@ -15,7 +15,6 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     //create a patient and add it to aed, also set age to adult to patient panel by default
     patient = new Patient();
-    dataProcessor.newPatient(patient);
     ui->patientInfoAge->setText("Adult");
     simulatedState = dead;
 
@@ -89,10 +88,9 @@ MainWindow::~MainWindow()
 
 void MainWindow::changeDeviceState()
 {
-    //enable or disable simulateButtons and cpr buttons, if it is not in cpr period or device is not turned on, cpr buttons should be disabled
-    bool cprEnabled = operating&&(currStep == 5);
+    //enable or disable simulateButtons and cpr buttons,
     setSimulateButtons(operating);
-    setCprButtons(cprEnabled);
+    setCprButtons(false);
 
     //set ui elements visability, also the selfcheck light label state
     if(operating)
@@ -121,8 +119,6 @@ void MainWindow::togglePowerButton(bool checked)
         operating = false;
         changeDeviceState();
         if(aedWorking){
-            aedWorking = operating;
-            waitPadTime = 0; //reset pad waiting time
             stopProcess();
         }
         qDebug() << "turning off ";
@@ -135,7 +131,6 @@ void MainWindow::changeBatteryLeft(double batteryLeft)
     if(batteryLeft >= 0.0 && batteryLeft <= 100.0){
         if(batteryLeft <= 0 && operating){
             togglePowerButton(false);
-            ui->powerOnButton->setChecked(false);
         }
         dataProcessor.setBattery(batteryLeft);
         ui->batterySpinBox->setValue(batteryLeft);
@@ -248,7 +243,6 @@ void MainWindow::initializeMainTimer()
 
 void MainWindow::updateMainTimer()
 {
-
     consumingBattery(1);
 
     if(dataProcessor.getBattery()<=0.0){
@@ -272,6 +266,7 @@ void MainWindow::updateMainTimer()
             currStep++;
         break;
         case 3://this tries to finish the third step (pad detection) and if finished, start the fourth step
+            updatingEcg(10,1000);
             padDetecting();
         break;
         case 4://this shall try to finish the fourth step (heart analyzing step) and if finished, start the fifth step
@@ -298,7 +293,7 @@ void MainWindow::updateMainTimer()
             togglePowerButton(false);
         else if(!dataProcessor.isConnected())
             qInfo("electrode unplugged during the process, stop working!");
-        setSimulateButtons(operating); //whenever aed is not in a treatment process, all scenario simulation buttons should be enabled
+        //setSimulateButtons(operating); //whenever aed is not in a treatment process, all scenario simulation buttons should be enabled
     }
 }
 
@@ -359,7 +354,7 @@ void MainWindow::placePad(bool placed)
 void MainWindow::waitingForPad()
 {
     //whenever aed has a pad detected, or aed does not detect any pad after WAIT_PAD_TIME elpased, aed should turn off
-    if(dataProcessor.detectPad() || waitPadTime >= WAIT_PAD_TIME){
+    if(waitPadTime >= WAIT_PAD_TIME){
         waitPadTime = 0;
         stepImages[2]->setChecked(false);//set step 3 (detect pad) image to gray light
         aedWorking = false;
@@ -411,12 +406,14 @@ void MainWindow::stopProcess()
     ui->currScenarioLabel->clear();
     ui->cprPrompt->clear();
 
+    aedWorking = false;
     anaylzingTime = 0;
     waveGraphX = 0;
     cprCount = 0;
     ui->cprCount->display(cprCount);
     dataProcessor.clearHeartData();
     setCprButtons(false);
+    ui->shockButton->setEnabled(false);
 }
 
 void MainWindow::startProcess()
@@ -451,13 +448,13 @@ void MainWindow::startAnaylzing()
 {
     ui->cprPrompt->clear();
     //ecg waveform should be green if patient is healthy, otherwise red
+
     if(dataProcessor.getDetectedState()==healthy){
         ui->ecgWaveGraph->graph()->setPen(QPen(Qt::green));
     }
     else{
         ui->ecgWaveGraph->graph()->setPen(QPen(Qt::red));
     }
-
     anaylzingTime++;
     qDebug() << "anaylzing, please wait, current time elapsed for anaylzing: " << QString::number(anaylzingTime*2) << "seconds";
 
@@ -472,6 +469,7 @@ void MainWindow::startAnaylzing()
         //if patient is either dead or healthy, stop the process
         if(dataProcessor.getDetectedState()==dead || dataProcessor.getDetectedState()==healthy){
             aedWorking = false;
+            generateHeartData();
             qDebug() << "either flatline signal, healthy signal or no signal detected, stop the process";
         }
         //else if patient does not have shockable rhythm, on to the cpr period
@@ -535,7 +533,7 @@ void MainWindow::generateHeartData()
         updatingEcg(2,1000);
         updatingEcg(220/dataProcessor.getHeartRate(),1000);
     }
-    else if(patient->getState()==fibrillation){
+    else if(dataProcessor.getDetectedState()==fibrillation){
         double randomInvertal = (rand()%9+4)/(rand()%3+1);
         updatingEcg(randomInvertal,dataProcessor.getAmp()+1000);
         updatingEcg(randomInvertal,dataProcessor.getAmp());

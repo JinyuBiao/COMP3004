@@ -97,9 +97,9 @@ private:
     double waveGraphX;
 
     bool aedWorking;//used for determine aed is in process or not
-    bool operating;
+    bool operating;//aed is turned on or not
 
-    StateType simulatedState;
+    StateType simulatedState;//used for contact se
     QVector<QPushButton*> stepImages;
     QVector<QPushButton*> cprButtons;
 

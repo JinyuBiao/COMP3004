@@ -41,7 +41,6 @@ class DataProcessor
         ~DataProcessor();
         void fillBattery();
         void setBattery(double);
-        void newPatient(Patient*);
         void setConnected(bool);
         void setHeartData();
         void clearHeartData();
@@ -87,7 +86,6 @@ class DataProcessor
         */
 
         StateType detectedState;
-        Patient* patient;
 };
 
 #endif // DATAPROCESSOR_H
