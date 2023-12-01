@@ -361,7 +361,6 @@ void MainWindow::waitingForPad()
         if(!dataProcessor.detectPad()){
             qDebug() << "Waiting time reached. No action was performed. System timed out.";
             operating = false;
-            waitPadTime = 0; //reset wait time
         }
     }
     else{
