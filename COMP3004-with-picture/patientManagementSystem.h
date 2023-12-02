@@ -1,11 +1,16 @@
 #ifndef PATIENTMANAGEMENTSYSTEM_H
 #define PATIENTMANAGEMENTSYSTEM_H
-#include "patient.h"
+#include "mainwindow.h"
 
-class PatientManagementSystem{
+class PatientManagementSystem: public MainWindow{
+    Q_OBJECT
 public:
-    void setPatientInfo();
+
+    PatientManagementSystem(QWidget *parent  = nullptr);
+    ~PatientManagementSystem();
+    void waitingForPad();
+    void padDetecting();
 private:
-    Patient* patient;
+
 };
 #endif // PATIENTMANAGEMENTSYSTEM_H

@@ -3,14 +3,25 @@
 
 //global constants
 
-const int DEFAULT_CURRSTEP = -1;
-const int DEFAULT_CPRCOUNT = 0;
-const int DEFAULT_PREVIOUSCPR = -1;
+#define DEFAULT_CURRSTEP -1;
+#define DEFAULT_CPRCOUNT 0;
+#define DEFAULT_PREVIOUSCPR -1;
 const bool DEFAULT_AED_WORKING = false;
-const float DEFAULT_WAVE_GRAPH_X = 0.0;
-const int DEFAULT_CPR_TIME = 0;
-const int DEFAULT_ANALYZING_TIME = 0;
-const int DEFAULT_WAIT_PAD_TIME = 0;
+#define DEFAULT_WAVE_GRAPH_X 0.0;
+#define DEFAULT_CPR_TIME 0;
+#define DEFAULT_ANALYZING_TIME 0;
+#define DEFAULT_WAIT_PAD_TIME 0;
+
+const float CPR_COMPRESSION_LEVEL_A_INCH = 0.5;
+const float CPR_COMPRESSION_LEVEL_B_INCH = 1;
+const float CPR_COMPRESSION_LEVEL_C_INCH = 2;
+
+const int CPR_PATIENT_HEALTHY_POSSIBILITY_FACTOR = 3;
+const int CPR_PATIENT_DIE_POSSIBILITY_FACTOR = 3;
+const int CPR_NOT_ENOUGH_PATIENT_HEALTHY_POSSIBILITY_FACTOR = 4;
+const int CPR_IMPOSSIBLE = 2;
+
+const int CPR_BAR_MULTIPLIAR = 40;
 
 #define ANALYZING_TIME 6    //the end time for analyzing
 #define CPR_TIME 10         //the end time for cpr,

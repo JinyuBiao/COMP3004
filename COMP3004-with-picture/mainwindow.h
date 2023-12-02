@@ -1,5 +1,5 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef AEDINTERFACE_H
+#define AEDINTERFACE_H
 
 #include <QMainWindow>
 #include <QTimer>
@@ -10,6 +10,8 @@
 #include "patient.h"
 #include "dataProcessor.h"
 #include "qcustomplot.h"
+#include "constantsHeader.h"
+
 
 /* Class Purpose: The main window of the application, acts as the control of the application
  *
@@ -80,9 +82,9 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-private:
+protected:
     Ui::MainWindow *ui;
-    DataProcessor dataProcessor;
+    DataProcessor* dataProcessor;
     Patient* patient;
 
     QTimer* mainProcessTimer;
@@ -108,8 +110,10 @@ private:
     void initializeMainTimer();
     void setSimulateButtons(bool);
     void setCprButtons(bool);
+
     void waitingForPad();
     void padDetecting();
+
     void stopProcess();
     void startProcess();
     void startAnaylzing();
@@ -118,6 +122,18 @@ private:
     void doCpr();
     void setPatientInfo(QString);
     void cprPrompt();
+
+    //helper methods
+    void initializeCounterValues();
+    void initializeButtons();
+    void initializeECGWaveGraph();
+    void connectButtons();
+
+    void disconnectElectrode();
+    void connectedToAdultPad();
+    void connectedToChildPad();
+
+    void determinePatientSurvival();
 
 private slots:
     void fillBattery();
@@ -134,8 +150,9 @@ private slots:
     void changeAge();
     void cprPush();
     void cprBarDrop();
+    void cprBarDropHelper(int i);
     void setPatientTouched(bool);
     void givingShock();
 
 };
-#endif // MAINWINDOW_H
+#endif // AEDINTERFACE_H
