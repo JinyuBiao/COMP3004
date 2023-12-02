@@ -58,6 +58,7 @@ MainWindow::MainWindow(QWidget *parent)
     cprButtons.push_back(ui->cprGoodPush);
     //set shockButton to disabled at start
     ui->shockButton->setEnabled(false);
+    ui->selfTestLight->setEnabled(false);
 
     connect(ui->powerOnButton, &QPushButton::clicked, this, &MainWindow::togglePowerButton);
     connect(ui->fillBatteryButton, &QPushButton::released, this, &MainWindow::fillBattery);
@@ -166,17 +167,19 @@ void MainWindow::connectElectrode(bool connection)
     if(connection){
         ui->padSelectionComboBox->setEnabled(false);
         ui->electrodeLabel->setText("Electrode connected");
-        if(ui->padPlacedCheckBox->isChecked()){
-            if(ui->padSelectionComboBox->currentText()=="AdultPad"){
+        if(ui->padSelectionComboBox->currentText()=="AdultPad"){
+            if(ui->padPlacedCheckBox->isChecked()){
                 dataProcessor.setAdultPad(true);
                 dataProcessor.setChildPad(false);
-                ui->padLabel->setPixmap(QPixmap(":/electrode/electrodeAdultPadOn"));
             }
-            else{
+            ui->padLabel->setPixmap(QPixmap(":/electrode/electrodeAdultPadOn"));
+        }
+        else{
+            if(ui->padPlacedCheckBox->isChecked()){
                 dataProcessor.setAdultPad(false);
                 dataProcessor.setChildPad(true);
-                ui->padLabel->setPixmap(QPixmap(":/electrode/electrodeChildPadOn"));
             }
+            ui->padLabel->setPixmap(QPixmap(":/electrode/electrodeChildPadOn"));
         }
     }
     //if user disconnect electrode, they can change pad
@@ -325,7 +328,7 @@ void MainWindow::placePad(bool placed)
 {
     //if checked place pad checkbox, check which pad is currently selected in the comboBox, and set that pad to true in aed
     if(placed){
-        if(ui->padSelectionComboBox->currentText()=="Adult Pad"){
+        if(ui->padSelectionComboBox->currentText()=="AdultPad"){
             dataProcessor.setAdultPad(true);
             dataProcessor.setChildPad(false);
         }
@@ -412,6 +415,7 @@ void MainWindow::stopProcess()
     ui->cprCount->display(cprCount);
     dataProcessor.clearHeartData();
     setCprButtons(false);
+    setSimulateButtons(true);
     ui->shockButton->setEnabled(false);
 }
 
@@ -448,12 +452,7 @@ void MainWindow::startAnaylzing()
     ui->cprPrompt->clear();
     //ecg waveform should be green if patient is healthy, otherwise red
 
-    if(dataProcessor.getDetectedState()==healthy){
-        ui->ecgWaveGraph->graph()->setPen(QPen(Qt::green));
-    }
-    else{
-        ui->ecgWaveGraph->graph()->setPen(QPen(Qt::red));
-    }
+
     anaylzingTime++;
     qDebug() << "anaylzing, please wait, current time elapsed for anaylzing: " << QString::number(anaylzingTime*2) << "seconds";
 
@@ -524,12 +523,23 @@ void MainWindow::givingShock()
 void MainWindow::generateHeartData()
 {
     dataProcessor.setHeartData();
-
+    if(dataProcessor.getDetectedState()==healthy){
+        ui->ecgWaveGraph->graph()->setPen(QPen(Qt::green));
+    }
+    else{
+        ui->ecgWaveGraph->graph()->setPen(QPen(Qt::red));
+    }
     //make graph resembles the specific heart disease (assuming other rhythms just have low but fixed heart rate)
-    if(dataProcessor.getDetectedState()==tachycardia || dataProcessor.getDetectedState()==other || dataProcessor.getDetectedState()==healthy){
+    if(dataProcessor.getDetectedState()==tachycardia || dataProcessor.getDetectedState()==other){
         updatingEcg(2,dataProcessor.getAmp()+1000);
         updatingEcg(2,1000-dataProcessor.getAmp());
         updatingEcg(2,1000);
+        updatingEcg(220/dataProcessor.getHeartRate(),1000);
+    }
+    else if(dataProcessor.getDetectedState()==healthy){
+        updatingEcg(3,dataProcessor.getAmp()+1000);
+        updatingEcg(3,1000-dataProcessor.getAmp());
+        updatingEcg(4,1000);
         updatingEcg(220/dataProcessor.getHeartRate(),1000);
     }
     else if(dataProcessor.getDetectedState()==fibrillation){
@@ -599,6 +609,7 @@ void MainWindow::cprPush()
         if(cprButtons[i]->isChecked()){
             currCpr = i;
             cprButtons[i]->setChecked(false);
+            qDebug() << "Cpr button " << QString::number(currCpr) << " is pressed";
             if(dataProcessor.detectPad()){
             //if push is above or equals to 1 inch
                 if(i != 0){

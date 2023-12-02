@@ -45,10 +45,10 @@ void DataProcessor::setHeartData()
                 heartRate = 1; //assume heart rate for fibrillation is 1 (heart rate for fibrillation is actually impossible to detect)
             break;
         case tachycardia:
-            if(heartRate==0 || heartRate==80) //since heart rate for healthy is assumed 80, if patient has healthy heartrate but is actually not healthy, it means it is touched before, so generate new heartrate for this condition
+            if(heartRate==0 || heartRate==70 || heartRate== 90) //since heart rate for healthy is assumed 80, if patient has healthy heartrate but is actually not healthy, it means it is touched before, so generate new heartrate for this condition
                 heartRate = (AdultPad) ? rand()%100 + 101 : rand()%100 + 121; //generates heart rate between 101 to 200 for adult heart rate, otherwise between 121 to 220 for child heart rate, if haven't already
-            if(heartAmp==0 || heartRate==80)
-                heartAmp = rand()%201 + 800; //generate heart amplitude between 800 to 1000 if haven't already
+            if(heartAmp==0 || heartRate==70 || heartRate== 90)
+                heartAmp = 1000; //generate heart amplitude between 900 to 1000 if haven't already
             break;
         case dead:
             if(heartAmp!=0)
@@ -57,7 +57,7 @@ void DataProcessor::setHeartData()
                 heartAmp = 0;
             break;
         case healthy:
-            heartRate = (AdultPad) ? 80 : 100; //generates 80 for adult heart rate otherwise between 100 for child heart rate
+            heartRate = (AdultPad) ? 70 : 90; //generates 80 for adult heart rate otherwise between 100 for child heart rate
             heartAmp = 800; //generate heart amplitude 800 if haven't already
             break;
         case other:
