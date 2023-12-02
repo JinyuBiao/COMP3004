@@ -5,7 +5,6 @@
 #include <QObject>
 #include <QTimer>
 #include "patient.h"
-#include "constantsHeader.h"
 
 /* Purpose of Class: Simulate aed functions
  *

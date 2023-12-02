@@ -1,61 +1,49 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#define ANALYZING_TIME 6 //the end time for analyzing
+#define CPR_TIME 10 //the end time for cpr, actual time is CPR_TIME*2 seconds
+#define WAIT_PAD_TIME 5 //the end time for waiting pad
+#define MAIN_PROCESS_TIME_INTERVAL 2000 //the time interval for main process timer, 1000 = 1s
+#define ENOUGH_CPR_COUNT 4 //the enough number of cpr performed to possibly bring patient back to healthy, if they do not receive this number of cprs, they never get healthy and may die
+#define CPR_BAR_DROP_RATE 250 //cpr bar dropping rate
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    //create a patient and add it to aed,
-    //also set age to adult to patient panel by default
+    //create a patient and add it to aed, also set age to adult to patient panel by default
     patient = new Patient();
     ui->patientInfoAge->setText("Adult");
     simulatedState = dead;
 
-    //set up ecg wave graph, which is a QCustomPlot type graph,
-    //learn more at https://www.youtube.com/watch?v=peoQJhzlLi8
-    initializeECGWaveGraph();
+    //set up ecg wave graph, which is a QCustomPlot type graph, learn more at https://www.youtube.com/watch?v=peoQJhzlLi8
+    ui->ecgWaveGraph->setBackground(QColor(0,0,0));
+    ui->ecgWaveGraph->addGraph();
+    ui->ecgWaveGraph->graph()->setPen(QPen(Qt::red));
+    ui->ecgWaveGraph->xAxis->setRange(0,50);
+    ui->ecgWaveGraph->yAxis->setRange(0,2100);
+    ui->ecgWaveGraph->xAxis->setVisible(false);
+    ui->ecgWaveGraph->yAxis->setVisible(false);
 
     //create timer for mainProcessTimer and cprBarDropTimer
     mainProcessTimer = new QTimer(this);
     cprBarDropTimer = new QTimer(this);
-
-    //set all counter values,
-    //such as timer count value, currStep etc. to initial value
-    initializeCounterValues();
+    //set all counter values, such as timer count value, currStep etc. to initial value
+    waitPadTime = 0;
+    anaylzingTime = 0;
+    cprTime = 0;
+    waveGraphX = 0.0;
+    aedWorking = false;
+    currStep = -1;
+    cprCount = 0;
+    previousCpr = -1;
 
     //deviced initially set to off
     operating = false;
     changeDeviceState();
-
-    //push all step buttons to the array
-    initializeButtons();
-
-    //set shockButton to disabled at start
-    ui->shockButton->setEnabled(false);
-
-    //connect buttons
-    connectButtons();
-
-}
-//[helper methods]
-void MainWindow::initializeCounterValues(){
-    //set all counter values,
-    //such as timer count value, currStep etc. to initial value
-    waitPadTime = DEFAULT_WAIT_PAD_TIME;
-    anaylzingTime = DEFAULT_ANALYZING_TIME;
-    cprTime = DEFAULT_CPR_TIME;
-    waveGraphX = DEFAULT_WAVE_GRAPH_X;
-    aedWorking = DEFAULT_AED_WORKING;
-    currStep = DEFAULT_CURRSTEP;
-    cprCount = DEFAULT_CPRCOUNT;
-    previousCpr = DEFAULT_PREVIOUSCPR;
-}
-
-void MainWindow::initializeButtons(){
-
-    //push all step buttons to the array,
-    //and set them to disable, since they shouldn't be clicked by user
+    //push all step buttons to the array, and set them to disable, since they shouldn't be clicked by user
     stepImages.push_back(ui->step1);
     stepImages.push_back(ui->step2);
     stepImages.push_back(ui->step3);
@@ -68,29 +56,14 @@ void MainWindow::initializeButtons(){
     cprButtons.push_back(ui->cprNoneDetectablePush);
     cprButtons.push_back(ui->cprPushHarder);
     cprButtons.push_back(ui->cprGoodPush);
-
-}
-
-void MainWindow::initializeECGWaveGraph(){
-
-    //set up ecg wave graph, which is a QCustomPlot type graph,
-    //learn more at https://www.youtube.com/watch?v=peoQJhzlLi8
-    ui->ecgWaveGraph->setBackground(QColor(0,0,0));
-    ui->ecgWaveGraph->addGraph();
-    ui->ecgWaveGraph->graph()->setPen(QPen(Qt::red));
-    ui->ecgWaveGraph->xAxis->setRange(0,50);
-    ui->ecgWaveGraph->yAxis->setRange(0,2100);
-    ui->ecgWaveGraph->xAxis->setVisible(false);
-    ui->ecgWaveGraph->yAxis->setVisible(false);
-
-}
-
-void MainWindow::connectButtons(){
+    //set shockButton to disabled at start
+    ui->shockButton->setEnabled(false);
+    ui->selfTestLight->setEnabled(false);
 
     connect(ui->powerOnButton, &QPushButton::clicked, this, &MainWindow::togglePowerButton);
     connect(ui->fillBatteryButton, &QPushButton::released, this, &MainWindow::fillBattery);
     connect(ui->electrodeConnectedCheckBox, &QCheckBox::clicked, this, &MainWindow::connectElectrode);
-    connect(ui->batterySpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &MainWindow::changeBatteryLeft);
+    connect(ui->batterySpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &MainWindow::changeBatteryLeft);    
     connect(ui->padSelectionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::padSelecting);
     connect(ui->padPlacedCheckBox, &QCheckBox::clicked, this, &MainWindow::placePad);
     connect(ui->changeAgeComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::changeAge);
@@ -106,26 +79,6 @@ void MainWindow::connectButtons(){
     connect(ui->shockButton, &QCheckBox::clicked, this, &MainWindow::givingShock);
 }
 
-void MainWindow::disconnectElectrode(){
-    ui->padSelectionComboBox->setEnabled(true);
-    aedWorking = false;
-    ui->electrodeLabel->setText("Electrode not connected");
-    ui->padLabel->setPixmap(QPixmap(":/electrode/electrodePadOff"));
-}
-
-void MainWindow::connectedToAdultPad(){
-    dataProcessor.setAdultPad(true);
-    dataProcessor.setChildPad(false);
-    ui->padLabel->setPixmap(QPixmap(":/electrode/electrodeAdultPadOn"));
-}
-
-void MainWindow::connectedToChildPad(){
-    dataProcessor.setAdultPad(false);
-    dataProcessor.setChildPad(true);
-    ui->padLabel->setPixmap(QPixmap(":/electrode/electrodeChildPadOn"));
-}
-
-//[heavy lifting]
 MainWindow::~MainWindow()
 {
     delete ui;
@@ -134,7 +87,6 @@ MainWindow::~MainWindow()
     delete patient;
 }
 
-//button presses
 void MainWindow::changeDeviceState()
 {
     //enable or disable simulateButtons and cpr buttons,
@@ -175,7 +127,6 @@ void MainWindow::togglePowerButton(bool checked)
     ui->powerOnButton->setChecked(operating);
 }
 
-//battery functions
 void MainWindow::changeBatteryLeft(double batteryLeft)
 {
     if(batteryLeft >= 0.0 && batteryLeft <= 100.0){
@@ -209,35 +160,39 @@ void MainWindow::consumingBattery(double consumption)
     changeBatteryLeft(currBattery);
 }
 
-
 void MainWindow::connectElectrode(bool connection)
 {
     dataProcessor.setConnected(connection);
-    //if user connect electrode,
-    //they can no longer change pad,
-    //and aed will record which pad is connected
+    //if user connect electrode, they can no longer change pad, and aed will record which pad is connected
     if(connection){
         ui->padSelectionComboBox->setEnabled(false);
         ui->electrodeLabel->setText("Electrode connected");
-        if(ui->padPlacedCheckBox->isChecked()){
-            if(ui->padSelectionComboBox->currentText()=="AdultPad"){
-                connectedToAdultPad();
+        if(ui->padSelectionComboBox->currentText()=="AdultPad"){
+            if(ui->padPlacedCheckBox->isChecked()){
+                dataProcessor.setAdultPad(true);
+                dataProcessor.setChildPad(false);
             }
-            else{
-                connectedToChildPad();
+            ui->padLabel->setPixmap(QPixmap(":/electrode/electrodeAdultPadOn"));
+        }
+        else{
+            if(ui->padPlacedCheckBox->isChecked()){
+                dataProcessor.setAdultPad(false);
+                dataProcessor.setChildPad(true);
             }
+            ui->padLabel->setPixmap(QPixmap(":/electrode/electrodeChildPadOn"));
         }
     }
     //if user disconnect electrode, they can change pad
     else{
-        disconnectElectrode();
+        ui->padSelectionComboBox->setEnabled(true);
+        aedWorking = false;
+        ui->electrodeLabel->setText("Electrode not connected");
+        ui->padLabel->setPixmap(QPixmap(":/electrode/electrodePadOff"));
     }
-    if(!aedWorking && operating)
-        //only updates self test light when aed is not in process and aed is on
+    if(!aedWorking && operating)//only updates self test light when aed is not in process and aed is on
         ui->selfTestLight->setChecked(dataProcessor.selfCheck());
 }
 
-//simulate different cases
 void MainWindow::simulateFib()
 {
     simulatedState = fibrillation;
@@ -278,7 +233,6 @@ void MainWindow::simulateOther()
     startProcess();
 }
 
-//timer operations
 void MainWindow::initializeMainTimer()
 {
     connect(mainProcessTimer, &QTimer::timeout, this, &MainWindow::updateMainTimer);
@@ -298,9 +252,7 @@ void MainWindow::updateMainTimer()
         aedWorking = false;
     }
     switch(currStep){
-        case 1:
-        //this finishes the first step
-        //(set first step button to unchecked) and start the second step
+        case 1://this finishes the first step (set first step button to unchecked) and start the second step
             stepImages[0]->setChecked(false);
             stepImages[1]->setChecked(true);
             qDebug() << "starting process " << QString::number(currStep);
@@ -322,7 +274,6 @@ void MainWindow::updateMainTimer()
         break;
         case 4://this shall try to finish the fourth step (heart analyzing step) and if finished, start the fifth step
             startAnaylzing();
-            //separate class
         break;
         case 5://this shall try to finish the fifth step (cpr) and if finished, it shall determine patient's condition, to decide whether re run the heart analyzing step again or stop the process if patient is dead
             ui->cprCount->display(cprCount);
@@ -335,7 +286,6 @@ void MainWindow::updateMainTimer()
             //if it is an adult pad, pushing 1 inch is not enough
             currCpr = 0;
             doCpr();
-            //separate class
         break;
     }
     //whenever aedWorking is set to false, stop the process
@@ -376,11 +326,9 @@ void MainWindow::padSelecting(int index)
 
 void MainWindow::placePad(bool placed)
 {
-    //if checked place pad checkbox,
-    //check which pad is currently selected in the comboBox,
-    //and set that pad to true in aed
+    //if checked place pad checkbox, check which pad is currently selected in the comboBox, and set that pad to true in aed
     if(placed){
-        if(ui->padSelectionComboBox->currentText()=="Adult Pad"){
+        if(ui->padSelectionComboBox->currentText()=="AdultPad"){
             dataProcessor.setAdultPad(true);
             dataProcessor.setChildPad(false);
         }
@@ -441,8 +389,7 @@ void MainWindow::padDetecting()
 
 void MainWindow::stopProcess()
 {
-    //if users turn off device when the process (5 steps) is not over,
-    //set the last step image to gray light
+    //if users turn off device when the process (5 steps) is not over, set the last step image to gray light
     if(currStep <= 5 && currStep > 0){
         stepImages[currStep-1]->setChecked(false);
     }
@@ -468,6 +415,7 @@ void MainWindow::stopProcess()
     ui->cprCount->display(cprCount);
     dataProcessor.clearHeartData();
     setCprButtons(false);
+    setSimulateButtons(true);
     ui->shockButton->setEnabled(false);
 }
 
@@ -475,10 +423,7 @@ void MainWindow::startProcess()
 {
     ui->cprPrompt->clear();
     setPatientInfo("Unknown");
-    //if aed passed self check,
-    //start the process by initializing mainProcessTimer,
-    //also disable simulate scenario buttons,
-    //pass selecting buttons and change age button
+    //if aed passed self check, start the process by initializing mainProcessTimer, also disable simulate scenario buttons, pas selecting buttons and change age button
     if(dataProcessor.selfCheck()){
         if(ui->patientTouchedCheckBox->isChecked())
             dataProcessor.setDetectedState(healthy);
@@ -504,16 +449,10 @@ void MainWindow::changeAge()
 
 void MainWindow::startAnaylzing()
 {
-    //clear past prompt
     ui->cprPrompt->clear();
-
     //ecg waveform should be green if patient is healthy, otherwise red
-    if(dataProcessor.getDetectedState()==healthy){
-        ui->ecgWaveGraph->graph()->setPen(QPen(Qt::green));
-    }
-    else{
-        ui->ecgWaveGraph->graph()->setPen(QPen(Qt::red));
-    }
+
+
     anaylzingTime++;
     qDebug() << "anaylzing, please wait, current time elapsed for anaylzing: " << QString::number(anaylzingTime*2) << "seconds";
 
@@ -526,8 +465,7 @@ void MainWindow::startAnaylzing()
         setPatientInfo("not Unknown");
 
         //if patient is either dead or healthy, stop the process
-        if(dataProcessor.getDetectedState()==dead ||
-                dataProcessor.getDetectedState()==healthy){
+        if(dataProcessor.getDetectedState()==dead || dataProcessor.getDetectedState()==healthy){
             aedWorking = false;
             generateHeartData();
             qDebug() << "either flatline signal, healthy signal or no signal detected, stop the process";
@@ -585,12 +523,23 @@ void MainWindow::givingShock()
 void MainWindow::generateHeartData()
 {
     dataProcessor.setHeartData();
-
+    if(dataProcessor.getDetectedState()==healthy){
+        ui->ecgWaveGraph->graph()->setPen(QPen(Qt::green));
+    }
+    else{
+        ui->ecgWaveGraph->graph()->setPen(QPen(Qt::red));
+    }
     //make graph resembles the specific heart disease (assuming other rhythms just have low but fixed heart rate)
-    if(dataProcessor.getDetectedState()==tachycardia || dataProcessor.getDetectedState()==other || dataProcessor.getDetectedState()==healthy){
+    if(dataProcessor.getDetectedState()==tachycardia || dataProcessor.getDetectedState()==other){
         updatingEcg(2,dataProcessor.getAmp()+1000);
         updatingEcg(2,1000-dataProcessor.getAmp());
         updatingEcg(2,1000);
+        updatingEcg(220/dataProcessor.getHeartRate(),1000);
+    }
+    else if(dataProcessor.getDetectedState()==healthy){
+        updatingEcg(3,dataProcessor.getAmp()+1000);
+        updatingEcg(3,1000-dataProcessor.getAmp());
+        updatingEcg(4,1000);
         updatingEcg(220/dataProcessor.getHeartRate(),1000);
     }
     else if(dataProcessor.getDetectedState()==fibrillation){
@@ -608,29 +557,23 @@ void MainWindow::doCpr()
 {
     if(cprTime <= CPR_TIME){
         cprTime++;
-        qDebug() << "in cpr period, please do cpr, current time elapsed for cpr:"
-                 << QString::number(cprTime*2) << "seconds";
+        qDebug() << "in cpr period, please do cpr, current time elapsed for cpr:" << QString::number(cprTime*2) << "seconds";
     }
     else{
         int patientDiePossibility;
         int patientHealthyPossibility;
         stepImages[4]->setChecked(false);
 
-        //if patient receiving enough cpr and pad is placed correctly,
-        //they might get healthy or might die
+        //if patient receiving enough cpr and pad is placed correctly, they might get healthy or might die
         if(cprCount >= ENOUGH_CPR_COUNT && dataProcessor.hasAdultPad() == patient->notChild()){
             patientDiePossibility = rand()%5+1;
             patientHealthyPossibility = rand()%3+1;
         }
-        //if patient not receiving enough cpr
-        //or patient has a wrong pad placed, they never get healthy
+        //if patient not receiving enough cpr or patient has a wrong pad placed, they never get healthy
         else{
             patientDiePossibility = rand()%4+1;
-            //impossible to survive
             patientHealthyPossibility = 2;
         }
-
-
         if(patientDiePossibility <= 1){
             patient->setState(dead);
             dataProcessor.setDetectedState(dead);
@@ -666,6 +609,7 @@ void MainWindow::cprPush()
         if(cprButtons[i]->isChecked()){
             currCpr = i;
             cprButtons[i]->setChecked(false);
+            qDebug() << "Cpr button " << QString::number(currCpr) << " is pressed";
             if(dataProcessor.detectPad()){
             //if push is above or equals to 1 inch
                 if(i != 0){
@@ -677,15 +621,11 @@ void MainWindow::cprPush()
                         cprBarDropTimer->disconnect();
                     }
                     ui->cprBar->setValue(i*40);
-                    connect(cprBarDropTimer, &QTimer::timeout,
-                            this, &MainWindow::cprBarDrop);
+                    connect(cprBarDropTimer, &QTimer::timeout, this, &MainWindow::cprBarDrop);
                     cprBarDropTimer->start(CPR_BAR_DROP_RATE);
 
-                    //if it is a child pad,
-                    //pushing 1 or 2 inches should be a good push,
-                    //otherwise only 2 inches is a good push
-                    if(dataProcessor.hasChildPad() ||
-                            (currCpr == 2 && dataProcessor.hasAdultPad()))
+                    //if it is a child pad, pushing 1 or 2 inches should be a good push, otherwise only 2 inches is a good push
+                    if(dataProcessor.hasChildPad() || (currCpr == 2 && dataProcessor.hasAdultPad()))
                        cprCount++;
                     ui->cprCount->display(cprCount);
                 }
@@ -738,10 +678,7 @@ void MainWindow::cprPrompt()
             ui->cprPrompt->setText("PUSH HARDER");
         }
         //if the pad is for adult, and previous push is 1 inch, while current push is 2 inches, prompts a good push message
-        else if((previousCpr == 1
-                 && currCpr == 2
-                 && dataProcessor.hasAdultPad())
-                || dataProcessor.hasChildPad()){
+        else if((previousCpr == 1 && currCpr == 2 && dataProcessor.hasAdultPad()) || dataProcessor.hasChildPad()){
             ui->cprPrompt->setText("GOOD PUSH, PLEASE KEEP IT UP");
         }
         previousCpr = currCpr;

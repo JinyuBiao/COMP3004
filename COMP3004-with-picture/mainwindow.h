@@ -1,5 +1,5 @@
-#ifndef AEDINTERFACE_H
-#define AEDINTERFACE_H
+#ifndef MAINWINDOW_H
+#define MAINWINDOW_H
 
 #include <QMainWindow>
 #include <QTimer>
@@ -10,7 +10,6 @@
 #include "patient.h"
 #include "dataProcessor.h"
 #include "qcustomplot.h"
-#include "constantsHeader.h"
 
 /* Class Purpose: The main window of the application, acts as the control of the application
  *
@@ -120,16 +119,6 @@ private:
     void setPatientInfo(QString);
     void cprPrompt();
 
-    //helper methods
-    void initializeCounterValues();
-    void initializeButtons();
-    void initializeECGWaveGraph();
-    void connectButtons();
-
-    void disconnectElectrode();
-    void connectedToAdultPad();
-    void connectedToChildPad();
-
 private slots:
     void fillBattery();
     void togglePowerButton(bool);
@@ -149,4 +138,4 @@ private slots:
     void givingShock();
 
 };
-#endif // AEDINTERFACE_H
+#endif // MAINWINDOW_H
