@@ -18,13 +18,17 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     patient.cpp \
-    qcustomplot.cpp
+    qcustomplot.cpp \
+    patientManagementSystem.cpp
 
 HEADERS += \
     dataProcessor.h \
     patient.h \
     mainwindow.h \
-    qcustomplot.h
+    qcustomplot.h \
+    patientManagementSystem.h \
+    deviceBattery.h \
+    constantsHeader.h
 
 FORMS += \
     mainwindow.ui
