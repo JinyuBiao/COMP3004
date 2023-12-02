@@ -18,12 +18,15 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     patient.cpp \
+    patientManagementSystem.cpp \
     qcustomplot.cpp
 
 HEADERS += \
+    constantsHeader.h \
     dataProcessor.h \
-    patient.h \
     mainwindow.h \
+    patient.h \
+    patientManagementSystem.h \
     qcustomplot.h
 
 FORMS += \

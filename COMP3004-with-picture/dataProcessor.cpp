@@ -40,15 +40,35 @@ void DataProcessor::setHeartData()
 {
     switch(detectedState){
         case fibrillation:
-            heartAmp = ((rand()%1000)+1);//generate random heart amplitude between 1 to 1000, since it is realistic for fibrillation
-            if(heartRate==0 || heartRate == 80)//since heart rate for healthy is assumed 80, if patient has healthy heartrate but is actually not healthy, it means it is touched before, so generate new heartrate for this condition
-                heartRate = 1; //assume heart rate for fibrillation is 1 (heart rate for fibrillation is actually impossible to detect)
+            heartAmp = ((rand()%1000)+1);
+            //generate random heart amplitude between 1 to 1000,
+            // since it is realistic for fibrillation
+            if(heartRate==0 || heartRate == 80)
+                //since heart rate for healthy is assumed 80,
+                //if patient has healthy heartrate
+                //but is actually not healthy,
+                //it means it is touched before, so generate new heartrate for this condition
+                heartRate = 1;
+                //assume heart rate for fibrillation is 1
+                //(heart rate for fibrillation is actually impossible
+                //to detect)
             break;
         case tachycardia:
-            if(heartRate==0 || heartRate==70 || heartRate== 90) //since heart rate for healthy is assumed 80, if patient has healthy heartrate but is actually not healthy, it means it is touched before, so generate new heartrate for this condition
-                heartRate = (AdultPad) ? rand()%100 + 101 : rand()%100 + 121; //generates heart rate between 101 to 200 for adult heart rate, otherwise between 121 to 220 for child heart rate, if haven't already
-            if(heartAmp==0 || heartRate==70 || heartRate== 90)
-                heartAmp = 1000; //generate heart amplitude between 900 to 1000 if haven't already
+            if(heartRate==0 || heartRate==80)
+                //since heart rate for healthy is assumed 80,
+                //if patient has healthy heartrate
+                //but is actually not healthy,
+                //it means it is touched before,
+                //so generate new heartrate for this condition
+                heartRate =
+                        (AdultPad) ? rand()%100
+                                     + 101 : rand()%100 + 121;
+                //generates heart rate between 101 to 200 for adult heart rate,
+                //otherwise between 121 to 220 for child heart rate, if haven't already
+            if(heartAmp==0 || heartRate==80)
+                heartAmp = rand()%201 + 800;
+                //generate heart amplitude between
+                //800 to 1000 if haven't already
             break;
         case dead:
             if(heartAmp!=0)
@@ -57,14 +77,18 @@ void DataProcessor::setHeartData()
                 heartAmp = 0;
             break;
         case healthy:
-            heartRate = (AdultPad) ? 70 : 90; //generates 80 for adult heart rate otherwise between 100 for child heart rate
+            heartRate = (AdultPad) ? 80 : 100; //generates 80 for adult heart rate otherwise between 100 for child heart rate
             heartAmp = 800; //generate heart amplitude 800 if haven't already
             break;
         case other:
             if(heartRate==0)
-                heartRate = (AdultPad) ? rand()%30+1 : rand()%50 + 1; //generates low heart rate which is 1 to 59 for adult heart rate otherwise between 1 to 79 for child heart rate, for other condition
+                heartRate = (AdultPad) ? rand()%30+1 : rand()%50 + 1;
+            //generates low heart rate which is 1 to 59
+            //for adult heart rate otherwise between 1 to 79
+            //for child heart rate, for other condition
             if(heartAmp==0)
-                heartAmp = rand()%400+150; //set low heart amplitude for other condition
+                heartAmp = rand()%400+150;
+            //set low heart amplitude for other condition
             break;
     }
 }
@@ -120,19 +144,22 @@ bool DataProcessor::detectShockable()//needs to add DataProcessorUI functions fo
             shockable = true;
         }
         else if(detectedState==dead){
-            //DataProcessorUI methods to warning a flatline or no signal detected on console goes here:
+            //DataProcessorUI methods to warning a flatline
+            //or no signal detected on console goes here:
             qInfo("Patient has flatlined or no signal detected, shock is disabled");
             shockable = false;
 
         }
         else{
-            //DataProcessorUI methods to state that patient is healthy on console goes here:
+            //DataProcessorUI methods to state that patient
+            //is healthy on console goes here:
             qInfo("Patient is healthy, a shock is not required.");
             shockable = false;
         }
     }
     else{
-        //DataProcessorUI methods to state that there is no pad connected on console goes here:
+        //DataProcessorUI methods to state
+        //that there is no pad connected on console goes here:
 
 
     }
