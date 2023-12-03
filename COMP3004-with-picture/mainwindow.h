@@ -94,6 +94,7 @@ protected:
     int anaylzingTime;
     int cprTime;
     int cprCount;
+    int shockCount;
     int previousCpr;
     int currCpr;
     double waveGraphX;
@@ -161,5 +162,6 @@ private slots:
     void cprBarDropHelper(int i);
 
 
+    void on_tab_9_customContextMenuRequested(const QPoint &pos);
 };
 #endif // AEDINTERFACE_H

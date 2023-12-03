@@ -50,6 +50,7 @@ void MainWindow::initializeCounterValues(){
     aedWorking = DEFAULT_AED_WORKING;
     currStep = DEFAULT_CURRSTEP;
     cprCount = DEFAULT_CPRCOUNT;
+    shockCount =DEFAULT_SHOCKCOUNT;
     previousCpr = DEFAULT_PREVIOUSCPR;
 }
 
@@ -620,6 +621,7 @@ void MainWindow::givingShock()
 
     //compute battery consumption percentage
     consumingBattery(ENERGY_J_1/(double)BATTERY_FULL_ENERGY_J);
+    shockCount++;
 }
 
 void MainWindow::generateHeartData()
