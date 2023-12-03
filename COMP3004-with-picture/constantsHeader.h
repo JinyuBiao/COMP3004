@@ -23,6 +23,14 @@ const int CPR_IMPOSSIBLE = 2;
 
 const int CPR_BAR_MULTIPLIAR = 40;
 
+const int ENERGY_NORMALOPERATION_J = 50;
+const int ENERGY_J_1 = 120;
+const int ENERGY_J_2 = 150;
+const int ENERGY_J_3 = 200;
+
+const int BATTERY_FULL_ENERGY_J = 18135;
+
+
 #define ANALYZING_TIME 6    //the end time for analyzing
 #define CPR_TIME 10         //the end time for cpr,
                             //actual time is CPR_TIME*2 seconds

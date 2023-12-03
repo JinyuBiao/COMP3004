@@ -368,7 +368,7 @@ void MainWindow::initializeMainTimer()
 
 void MainWindow::updateMainTimer()
 {
-    consumingBattery(1);
+    consumingBattery(ENERGY_NORMALOPERATION_J/(double)BATTERY_FULL_ENERGY_J);
 
     if(dataProcessor->getBattery()<=0.0){
         aedWorking = false;
@@ -568,7 +568,8 @@ void MainWindow::startAnaylzing()
             generateHeartData();
             qDebug() << "either flatline signal, healthy signal or no signal detected, stop the process";
         }
-        //else if patient does not have shockable rhythm, on to the cpr period
+        //else if patient does not have shockable rhythm,
+        //on to the cpr period
         else if(!dataProcessor->detectShockable()){
             qDebug() << "no shock needed, on to the cpr period";
             stepImages[3]->setChecked(false);
@@ -616,6 +617,9 @@ void MainWindow::givingShock()
     setCprButtons(true);
     anaylzingTime = 0;
     currStep++;
+
+    //compute battery consumption percentage
+    consumingBattery(ENERGY_J_1/(double)BATTERY_FULL_ENERGY_J);
 }
 
 void MainWindow::generateHeartData()

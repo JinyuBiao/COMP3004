@@ -136,23 +136,30 @@ protected:
     void determinePatientSurvival();
 
 private slots:
-    void fillBattery();
     void togglePowerButton(bool);
+
+    void fillBattery();
     void changeBatteryLeft(double);
-    void connectElectrode(bool);
+
+
     void simulateFib();
     void simulateTach();
     void simulateDead();
     void simulateOther();
+
     void updateMainTimer();
     void padSelecting(int);
     void placePad(bool);
+    void connectElectrode(bool);
+
     void changeAge();
+    void setPatientTouched(bool);
+    void givingShock();
+
     void cprPush();
     void cprBarDrop();
     void cprBarDropHelper(int i);
-    void setPatientTouched(bool);
-    void givingShock();
+
 
 };
 #endif // AEDINTERFACE_H
