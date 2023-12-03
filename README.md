@@ -17,7 +17,6 @@ Github: sunnyliuYT
 
 Deadlines
 
-Thursday 6:00 pm
 
 (Nov. 19)(atmarie Adegbuyi + All member's additional input)use case  
 
