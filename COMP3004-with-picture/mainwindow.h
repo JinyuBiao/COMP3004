@@ -133,6 +133,8 @@ protected:
     void disconnectElectrode();
     void connectedToAdultPad();
     void connectedToChildPad();
+    void disconnectedPad();
+    void detectSelectedPad();
 
     void determinePatientSurvival();
 
@@ -161,7 +163,5 @@ private slots:
     void cprBarDrop();
     void cprBarDropHelper(int i);
 
-
-    void on_tab_9_customContextMenuRequested(const QPoint &pos);
 };
 #endif // AEDINTERFACE_H

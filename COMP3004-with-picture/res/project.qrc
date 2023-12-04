@@ -19,5 +19,7 @@
         <file>selfTest/selfTestFailed.png</file>
         <file>selfTest/selfTestPast.png</file>
         <file>electrode/electrodePadOff.png</file>
+        <file>electrode/electrodeAdultPadSelected.png</file>
+        <file>electrode/electrodeChildPadSelected.png</file>
     </qresource>
 </RCC>

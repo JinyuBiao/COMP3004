@@ -153,7 +153,7 @@ bool DataProcessor::detectShockable()//needs to add DataProcessorUI functions fo
         else{
             //DataProcessorUI methods to state that patient
             //is healthy on console goes here:
-            qInfo("Patient is healthy, a shock is not required.");
+            qInfo("Shock is not required.");
             shockable = false;
         }
     }

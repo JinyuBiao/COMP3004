@@ -13,14 +13,14 @@ const bool DEFAULT_AED_WORKING = false;
 #define DEFAULT_ANALYZING_TIME 0;
 #define DEFAULT_WAIT_PAD_TIME 0;
 
-const float CPR_COMPRESSION_LEVEL_A_INCH = 0.5;
-const float CPR_COMPRESSION_LEVEL_B_INCH = 1;
-const float CPR_COMPRESSION_LEVEL_C_INCH = 2;
+const float CPR_COMPRESSION_LEVEL_A_INCH = 1;
+const float CPR_COMPRESSION_LEVEL_B_INCH = 2;
+const float CPR_COMPRESSION_LEVEL_C_INCH = 3;
 
-const int CPR_PATIENT_HEALTHY_POSSIBILITY_FACTOR = 3;
-const int CPR_PATIENT_DIE_POSSIBILITY_FACTOR = 3;
-const int CPR_NOT_ENOUGH_PATIENT_HEALTHY_POSSIBILITY_FACTOR = 4;
-const int CPR_IMPOSSIBLE = 2;
+//const int CPR_PATIENT_HEALTHY_POSSIBILITY_FACTOR = 3;
+//const int CPR_PATIENT_DIE_POSSIBILITY_FACTOR = 3;
+//const int CPR_NOT_ENOUGH_PATIENT_HEALTHY_POSSIBILITY_FACTOR = 4;
+//const int CPR_IMPOSSIBLE = 2;
 
 const int CPR_BAR_MULTIPLIAR = 40;
 
@@ -39,7 +39,7 @@ const int BATTERY_FULL_ENERGY_J = 18135;
 #define MAIN_PROCESS_TIME_INTERVAL 2000
                             //the time interval for main process timer,
                             //1000 = 1s
-#define ENOUGH_CPR_COUNT 4  //the enough number of cpr performed to possibly bring patient back to healthy, if they do not receive this number of cprs, they never get healthy and may die
+#define ENOUGH_CPR_COUNT 30  //the enough number of cpr performed to possibly bring patient back to healthy, if they do not receive this number of cprs, they never get healthy and may die
 #define CPR_BAR_DROP_RATE 250 //cpr bar dropping rate
 
 
