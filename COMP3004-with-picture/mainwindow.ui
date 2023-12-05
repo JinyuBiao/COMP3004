@@ -1125,7 +1125,7 @@ border-radius: 20ox;</string>
     </widget>
     <widget class="QWidget" name="tab_9">
      <attribute name="title">
-      <string>Self Test</string>
+      <string>Progress check</string>
      </attribute>
      <widget class="QWidget" name="gridLayoutWidget_9">
       <property name="geometry">
