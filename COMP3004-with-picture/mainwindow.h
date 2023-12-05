@@ -90,6 +90,7 @@ protected:
     QTimer* mainProcessTimer;
     QTimer* cprBarDropTimer;
     int currStep;
+    int elapsedTime;
     int waitPadTime;//used for the pad dectection step
     int anaylzingTime;
     int cprTime;

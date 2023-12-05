@@ -13,8 +13,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->patientInfoAge->setText("Adult");
     simulatedState = dead;
 
-    //set up ecg wave graph, which is a QCustomPlot type graph,
-    //learn more at https://www.youtube.com/watch?v=peoQJhzlLi8
+    //set up ecg wave graph, which is a QCustomPlot type graph
     initializeECGWaveGraph();
 
     //create timer for mainProcessTimer and cprBarDropTimer
@@ -34,6 +33,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     //set shockButton to disabled at start
     ui->shockButton->setEnabled(false);
+    ui->enoughCPR_Lable->setText(QString::number(ENOUGH_CPR_COUNT));
 
     //connect buttons
     connectButtons();
@@ -54,6 +54,7 @@ void MainWindow::initializeCounterValues(){
     cprCount = DEFAULT_CPRCOUNT;
     shockCount =DEFAULT_SHOCKCOUNT;
     previousCpr = DEFAULT_PREVIOUSCPR;
+    elapsedTime = DEFAULT_ELAPSED_TIME;
 }
 
 void MainWindow::initializeButtons(){
@@ -188,6 +189,7 @@ void MainWindow::determinePatientSurvival(){
     // Initialize the possibilities
     int patientDiePossibility = 40;  // Default value for dead possibility
     int patientHealthyPossibility = 30;  // Default value for healthy possibility
+    int patientBecomeNoneShockablePOssibility = 50; // Default value for becoming none-shockable
     //int patientShockNeededPossibility = 30;  // Possibility for another shock and CPR
 
     stepImages[4]->setChecked(false);
@@ -196,9 +198,7 @@ void MainWindow::determinePatientSurvival(){
     bool isCprEnough = cprCount >= ENOUGH_CPR_COUNT;
     bool isPadMatch = (dataProcessor->hasAdultPad() == patient->notChild()) || (dataProcessor->hasChildPad() == !patient->notChild());
 
-    if (isCprEnough && isPadMatch) {
-        // If CPR count is enough and pad matches, use the default possibilities
-    } else {
+    if (!(isCprEnough && isPadMatch)) {
         // If CPR count is not enough or pad doesn't match
         patientDiePossibility = 60;  // Increase the dead possibility
         patientHealthyPossibility = 0;  // Set healthy possibility to 0%
@@ -207,20 +207,25 @@ void MainWindow::determinePatientSurvival(){
     // Generate a random number to determine the patient's condition
     int randomValue = rand() % 100;  // Random number between 0 and 99
 
-    if (randomValue < patientDiePossibility) {
+    if (randomValue < patientDiePossibility || shockCount == 3) { //for testing, the max time for cpr period is 3, exceeding this meaning patient dies
         patient->setState(dead);
         dataProcessor->setDetectedState(dead);
         qInfo("Patient is dead, sending flatline signal.");
-        ui->cprPrompt->setText("Patient is flatlined, process ending");
+        ui->cprPrompt->setText("Patient is flatlined, process ending after analyzing period");
     } else if (randomValue < patientDiePossibility + patientHealthyPossibility) {
         patient->setState(healthy);
         dataProcessor->setDetectedState(healthy);
         qInfo("Patient is healthy, sending healthy signal.");
-        ui->cprPrompt->setText("Patient is healthy, process ending");
+        ui->cprPrompt->setText("Patient is healthy, process ending after analyzing period");
+    } else if (randomValue < patientBecomeNoneShockablePOssibility || dataProcessor->getDetectedState() != other) {
+        patient->setState(other);
+        dataProcessor->setDetectedState(other);
+        qInfo("Patient becomes none shockable, sending asystole signal.");
+        ui->cprPrompt->setText("Patient becomes none-shockable, process continues");
     }
      setCprButtons(false);
-     cprCount = 0;
-     cprTime = 0;
+     cprCount = DEFAULT_CPRCOUNT;
+     cprTime = DEFAULT_CPR_TIME;
      currStep--;
      stepImages[3]->setChecked(true);
      dataProcessor->clearHeartData();
@@ -243,10 +248,15 @@ void MainWindow::changeDeviceState()
     //enable or disable simulateButtons and cpr buttons,
     //setSimulateButtons(operating);
     setCprButtons(false);
-
     //set ui elements visability, also the selfcheck light label state
-    if(operating)
-        ui->selfTestLight->setChecked(dataProcessor->selfCheck());
+    if(operating){
+        bool selfTest = dataProcessor->selfCheck();
+        ui->selfTestLight->setChecked(selfTest);
+        setSimulateButtons(selfTest);
+    }
+    else{
+        setSimulateButtons(false);
+    }
     ui->statusBarQFrame->setVisible(operating);
     ui->cprBar->setVisible(operating);
     ui->ecgWaveGraph->setVisible(operating);
@@ -284,12 +294,19 @@ void MainWindow::togglePowerButton(bool checked)
 void MainWindow::changeBatteryLeft(double batteryLeft)
 {
     if(batteryLeft >= 0.0 && batteryLeft <= 100.0){
-        if(batteryLeft <= 0 && operating){
-            togglePowerButton(false);
-        }
         dataProcessor->setBattery(batteryLeft);
         ui->batterySpinBox->setValue(batteryLeft);
         ui->batteryLevelBar->setValue(batteryLeft);
+        if(batteryLeft <= 0 && operating){
+            togglePowerButton(false);
+        }
+        else if(batteryLeft <= 15 && operating){
+            ui->selfTestLight->setChecked(false);
+            stopProcess();
+        }
+        else if(operating && !aedWorking){
+            setSimulateButtons(dataProcessor->selfCheck());
+        }
 
         if(batteryLeft <= 20){
             qInfo("Battery low, please fill the battery in time!");
@@ -318,7 +335,7 @@ void MainWindow::consumingBattery(double consumption)
 void MainWindow::connectElectrode(bool connection)
 {
     dataProcessor->setConnected(connection);
-    if (dataProcessor->selfCheck()){
+    if (dataProcessor->selfCheck() && operating){
         setSimulateButtons(connection);
     }
     //if user connect electrode,
@@ -382,7 +399,7 @@ void MainWindow::simulateOther()
     simulatedState = other;
     patient->setState(other);
 
-    ui->currScenarioLabel->setText("Other Rhythms");
+    ui->currScenarioLabel->setText("Asystole Rhythms");
     ui->currScenarioLabel->setAlignment(Qt::AlignCenter);
     startProcess();
 }
@@ -402,7 +419,8 @@ void MainWindow::initializeMainTimer()
 void MainWindow::updateMainTimer()
 {
     consumingBattery(ENERGY_NORMALOPERATION_J/(double)BATTERY_FULL_ENERGY_J);
-
+    elapsedTime+=2;
+    ui->elapsedTime->setText(QString::number(elapsedTime));
     if(dataProcessor->getBattery()<=0.0){
         aedWorking = false;
     }
@@ -443,7 +461,6 @@ void MainWindow::updateMainTimer()
     }
     //whenever aedWorking is set to false, stop the process
     if(!aedWorking){
-        qDebug() << "stop at process " << QString::number(currStep);
         stopProcess();//aed not waiting meaning there is no process o ngoing
         if(!operating)
             togglePowerButton(false);
@@ -512,6 +529,7 @@ void MainWindow::stopProcess()
     //set the last step image to gray light
     if(currStep <= 5 && currStep > 0){
         stepImages[currStep-1]->setChecked(false);
+        qDebug() << "stop at process " << QString::number(currStep);
     }
 
     //make sure ecg waveform is set to default color (red)
@@ -528,15 +546,14 @@ void MainWindow::stopProcess()
     ui->currScenarioLabel->clear();
     ui->cprPrompt->clear();
 
-    aedWorking = false;
-    anaylzingTime = 0;
-    waveGraphX = 0;
-    cprCount = 0;
+    initializeCounterValues();
     ui->cprCount->display(cprCount);
+    ui->shockCount->setText(QString::number(shockCount));
+    ui->elapsedTime->setText(QString::number(elapsedTime));
     dataProcessor->clearHeartData();
+    setSimulateButtons(dataProcessor->selfCheck() && operating);
     setCprButtons(false);
     ui->shockButton->setEnabled(false);
-    currStep = 0; // reset current step
     ui->changeAgeComboBox->setEnabled(true); //reset the change age group to true for further test
 
     // Uncheck the electrode connected checkbox and pad placed checkbox, and reset them to be disconnected
@@ -659,6 +676,7 @@ void MainWindow::givingShock()
     //compute battery consumption percentage
     consumingBattery(ENERGY_J_1/(double)BATTERY_FULL_ENERGY_J);
     shockCount++;
+    ui->shockCount->setText(QString::number(shockCount));
 }
 
 void MainWindow::generateHeartData()
@@ -672,11 +690,17 @@ void MainWindow::generateHeartData()
     }
     //make graph resembles the specific heart disease
     //(assuming other rhythms just have low but fixed heart rate)
-    if(dataProcessor->getDetectedState()==tachycardia || dataProcessor->getDetectedState()==other){
+    if(dataProcessor->getDetectedState()==tachycardia){
         updatingEcg(2,dataProcessor->getAmp()+1000);
         updatingEcg(2,1000-dataProcessor->getAmp());
         updatingEcg(2,1000);
         updatingEcg(220/dataProcessor->getHeartRate(),1000);
+    }
+    else if(dataProcessor->getDetectedState()==other){
+        updatingEcg(rand()%10+1,dataProcessor->getAmp()+1000+rand()%11);
+        updatingEcg(rand()%10+1,1000-dataProcessor->getAmp()+rand()%11);
+        updatingEcg(2,1000);
+        updatingEcg(dataProcessor->getHeartRate(),1000);
     }
     else if(dataProcessor->getDetectedState()==healthy){
         updatingEcg(3,dataProcessor->getAmp()+1000);

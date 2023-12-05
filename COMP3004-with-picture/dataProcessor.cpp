@@ -81,14 +81,13 @@ void DataProcessor::setHeartData()
             heartAmp = 800; //generate heart amplitude 800 if haven't already
             break;
         case other:
-            if(heartRate==0)
-                heartRate = (AdultPad) ? rand()%30+1 : rand()%50 + 1;
+            heartRate = (AdultPad) ? rand()%5+1 : rand()%3 + 1;
             //generates low heart rate which is 1 to 59
             //for adult heart rate otherwise between 1 to 79
             //for child heart rate, for other condition
             if(heartAmp==0)
-                heartAmp = rand()%400+150;
-            //set low heart amplitude for other condition
+                heartAmp = 50;
+            //set low heart amplitude for asystole condition
             break;
     }
 }
@@ -116,7 +115,7 @@ bool DataProcessor::hasChildPad()
 
 bool DataProcessor::selfCheck()
 {
-    bool checkResult = batteryLeft>=15&&connected;
+    bool checkResult = batteryLeft>15&&connected;
     if(checkResult){
         qInfo("self test passed");
     }
@@ -200,7 +199,7 @@ QString DataProcessor::getDetectedStateString()
         case tachycardia:
             return("ventricular tachycardia");
         case other:
-            return("other conditions");
+            return("asystole");
         case dead:
             return("flatlined");
         case healthy:

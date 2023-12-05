@@ -12,7 +12,10 @@ const bool DEFAULT_AED_WORKING = false;
 #define DEFAULT_CPR_TIME 0;
 #define DEFAULT_ANALYZING_TIME 0;
 #define DEFAULT_WAIT_PAD_TIME 0;
+#define DEFAULT_TREATMENT_TIME 0;
+#define DEFAULT_ELAPSED_TIME 0;
 
+const int MAX_TREATMENTS = 3;
 const float CPR_COMPRESSION_LEVEL_A_INCH = 1;
 const float CPR_COMPRESSION_LEVEL_B_INCH = 2;
 const float CPR_COMPRESSION_LEVEL_C_INCH = 3;
@@ -29,7 +32,7 @@ const int ENERGY_J_1 = 120;
 const int ENERGY_J_2 = 150;
 const int ENERGY_J_3 = 200;
 
-const int BATTERY_FULL_ENERGY_J = 18135;
+const int BATTERY_FULL_ENERGY_J = 150;
 
 
 #define ANALYZING_TIME 6    //the end time for analyzing
@@ -39,7 +42,7 @@ const int BATTERY_FULL_ENERGY_J = 18135;
 #define MAIN_PROCESS_TIME_INTERVAL 2000
                             //the time interval for main process timer,
                             //1000 = 1s
-#define ENOUGH_CPR_COUNT 30  //the enough number of cpr performed to possibly bring patient back to healthy, if they do not receive this number of cprs, they never get healthy and may die
+#define ENOUGH_CPR_COUNT 15  //the enough number of cpr performed to possibly bring patient back to healthy, if they do not receive this number of cprs, they never get healthy and may die
 #define CPR_BAR_DROP_RATE 250 //cpr bar dropping rate
 
 
