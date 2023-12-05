@@ -18,7 +18,7 @@ Github: sunnyliuYT
 Deadlines
 
 
-(Nov. 19)(atmarie Adegbuyi + All member's additional input)use case  
+(Nov. 19)(Patmarie Adegbuyi + All member's additional input)use case  
 
 (Nov. 22)(All)UML & traceability matrix & Sequence Diagram
 
