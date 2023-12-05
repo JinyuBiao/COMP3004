@@ -52,7 +52,8 @@ void MainWindow::initializeCounterValues(){
     aedWorking = DEFAULT_AED_WORKING;
     currStep = DEFAULT_CURRSTEP;
     cprCount = DEFAULT_CPRCOUNT;
-    shockCount =DEFAULT_SHOCKCOUNT;
+    treatmentCount =DEFAULT_TREATMENTCOUNT;
+    shockCount = DEFAULT_SHOCK_COUNT;
     previousCpr = DEFAULT_PREVIOUSCPR;
     elapsedTime = DEFAULT_ELAPSED_TIME;
 }
@@ -93,7 +94,7 @@ void MainWindow::initializeECGWaveGraph(){
 void MainWindow::connectButtons(){
 
     connect(ui->powerOnButton, &QPushButton::clicked, this, &MainWindow::togglePowerButton);
-    connect(ui->fillBatteryButton, &QPushButton::released, this, &MainWindow::fillBattery);
+    connect(ui->fillBatteryButton, &QPushButton::clicked, this, &MainWindow::fillBattery);
     connect(ui->electrodeConnectedCheckBox, &QCheckBox::clicked, this, &MainWindow::connectElectrode);
     connect(ui->batterySpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &MainWindow::changeBatteryLeft);
     connect(ui->padSelectionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::padSelecting);
@@ -189,7 +190,7 @@ void MainWindow::determinePatientSurvival(){
     // Initialize the possibilities
     int patientDiePossibility = 40;  // Default value for dead possibility
     int patientHealthyPossibility = 30;  // Default value for healthy possibility
-    int patientBecomeNoneShockablePOssibility = 50; // Default value for becoming none-shockable
+    int patientBecomeNoneShockablePossibility = 5; // Default value for becoming none-shockable
     //int patientShockNeededPossibility = 30;  // Possibility for another shock and CPR
 
     stepImages[4]->setChecked(false);
@@ -200,14 +201,14 @@ void MainWindow::determinePatientSurvival(){
 
     if (!(isCprEnough && isPadMatch)) {
         // If CPR count is not enough or pad doesn't match
-        patientDiePossibility = 60;  // Increase the dead possibility
+        patientDiePossibility = 70;  // Increase the dead possibility
         patientHealthyPossibility = 0;  // Set healthy possibility to 0%
     }
 
     // Generate a random number to determine the patient's condition
     int randomValue = rand() % 100;  // Random number between 0 and 99
 
-    if (randomValue < patientDiePossibility || shockCount == 3) { //for testing, the max time for cpr period is 3, exceeding this meaning patient dies
+    if (randomValue < patientDiePossibility || treatmentCount == 3) { //for testing, the max time for cpr period is 3, exceeding this meaning patient dies
         patient->setState(dead);
         dataProcessor->setDetectedState(dead);
         qInfo("Patient is dead, sending flatline signal.");
@@ -217,19 +218,20 @@ void MainWindow::determinePatientSurvival(){
         dataProcessor->setDetectedState(healthy);
         qInfo("Patient is healthy, sending healthy signal.");
         ui->cprPrompt->setText("Patient is healthy, process ending after analyzing period");
-    } else if (randomValue < patientBecomeNoneShockablePOssibility || dataProcessor->getDetectedState() != other) {
+    } else if (randomValue < patientDiePossibility + patientHealthyPossibility + patientBecomeNoneShockablePossibility && dataProcessor->getDetectedState() != other) {
         patient->setState(other);
         dataProcessor->setDetectedState(other);
         qInfo("Patient becomes none shockable, sending asystole signal.");
         ui->cprPrompt->setText("Patient becomes none-shockable, process continues");
     }
-     setCprButtons(false);
-     cprCount = DEFAULT_CPRCOUNT;
-     cprTime = DEFAULT_CPR_TIME;
-     currStep--;
-     stepImages[3]->setChecked(true);
-     dataProcessor->clearHeartData();
-     setPatientInfo("Unknown");
+    treatmentCount++;
+    setCprButtons(false);
+    cprCount = DEFAULT_CPRCOUNT;
+    cprTime = DEFAULT_CPR_TIME;
+    currStep--;
+    stepImages[3]->setChecked(true);
+    dataProcessor->clearHeartData();
+    setPatientInfo("Unknown");
 }
 
 //[heavy lifting]
@@ -305,7 +307,9 @@ void MainWindow::changeBatteryLeft(double batteryLeft)
             stopProcess();
         }
         else if(operating && !aedWorking){
-            setSimulateButtons(dataProcessor->selfCheck());
+            bool seftTest = dataProcessor->selfCheck();
+            setSimulateButtons(seftTest);
+            ui->selfTestLight->setChecked(seftTest);
         }
 
         if(batteryLeft <= 20){
@@ -335,8 +339,12 @@ void MainWindow::consumingBattery(double consumption)
 void MainWindow::connectElectrode(bool connection)
 {
     dataProcessor->setConnected(connection);
-    if (dataProcessor->selfCheck() && operating){
-        setSimulateButtons(connection);
+    if(operating){
+        bool selfTest = dataProcessor->selfCheck();
+        setSimulateButtons(selfTest && !aedWorking && connection); //if self test passed, aed is not in working period (5 steps) and there is a connection, enable simulate buttons
+        if(!aedWorking)
+            //only updates self test light when aed is not in process and aed is on
+            ui->selfTestLight->setChecked(selfTest);
     }
     //if user connect electrode,
     //they can no longer change pad,
@@ -358,9 +366,7 @@ void MainWindow::connectElectrode(bool connection)
         disconnectElectrode();
         setSimulateButtons(false);
     }
-    if(!aedWorking && operating)
-        //only updates self test light when aed is not in process and aed is on
-        ui->selfTestLight->setChecked(dataProcessor->selfCheck());
+
 }
 
 //simulate different cases
@@ -410,7 +416,8 @@ void MainWindow::initializeMainTimer()
     connect(mainProcessTimer, &QTimer::timeout, this, &MainWindow::updateMainTimer);
     qDebug() << "starting process " << QString::number(currStep);
     stepImages[0]->setChecked(true); //this sets the first step button to checked, so the image will change, same for all other steps
-    qDebug() << "Process 1: Checking if the patient is OK";
+    ui->currProcess->setText("Check responsiveness");
+    //qDebug() << "Process 1: Checking if the patient is OK";
     updatingEcg(1,1000);//start a flatline ecg wave at the first step
     currStep++;
     mainProcessTimer->start(MAIN_PROCESS_TIME_INTERVAL);
@@ -420,7 +427,7 @@ void MainWindow::updateMainTimer()
 {
     consumingBattery(ENERGY_NORMALOPERATION_J/(double)BATTERY_FULL_ENERGY_J);
     elapsedTime+=2;
-    ui->elapsedTime->setText(QString::number(elapsedTime));
+    ui->elapsedTime->setText(((elapsedTime/60 < 10) ? "0" + QString::number(elapsedTime/60) :  QString::number(elapsedTime/60)) + ((elapsedTime%60 < 10) ? + ":0" + QString::number(elapsedTime%60) : + ":" + QString::number(elapsedTime%60)));
     if(dataProcessor->getBattery()<=0.0){
         aedWorking = false;
     }
@@ -431,7 +438,8 @@ void MainWindow::updateMainTimer()
             stepImages[0]->setChecked(false);
             stepImages[1]->setChecked(true);
             qDebug() << "starting process " << QString::number(currStep);
-            qDebug() << "Process 2: Calling emergency service";
+            ui->currProcess->setText("Calling emergency service");
+            //qDebug() << "Process 2: Calling emergency service";
             updatingEcg(10,1000);
             currStep++;
         break;
@@ -439,20 +447,24 @@ void MainWindow::updateMainTimer()
             stepImages[1]->setChecked(false);
             stepImages[2]->setChecked(true);
             qDebug() << "starting process " << QString::number(currStep);
-            qDebug() << "Process 3: Waiting pad placement";
+            ui->currProcess->setText("Waiting pad placement");
             updatingEcg(10,1000);
             currStep++;
         break;
         case 3://this tries to finish the third step (pad detection) and if finished, start the fourth step
+
             updatingEcg(10,1000);
             padDetecting();
         break;
         case 4://this shall try to finish the fourth step (heart analyzing step) and if finished, start the fifth step
+            ui->treatmentCount->setText(QString::number(treatmentCount));
+            ui->currProcess->setText("Anaylzing");
             startAnaylzing();
             //separate class
         break;
         case 5://this shall try to finish the fifth step (cpr) and if finished, it shall determine patient's condition, to decide whether re run the heart analyzing step again or stop the process if patient is dead
             currCpr = 0;
+            ui->currProcess->setText("CPR period");
             ui->cprCount->display(cprCount);
             cprPrompt();
             doCpr();
@@ -545,11 +557,12 @@ void MainWindow::stopProcess()
     ui->ecgWaveGraph->replot();
     ui->currScenarioLabel->clear();
     ui->cprPrompt->clear();
+    ui->currProcess->setText("");
 
     initializeCounterValues();
     ui->cprCount->display(cprCount);
-    ui->shockCount->setText(QString::number(shockCount));
-    ui->elapsedTime->setText(QString::number(elapsedTime));
+    ui->treatmentCount->setText(QString::number(treatmentCount));
+    ui->elapsedTime->setText("00:00");
     dataProcessor->clearHeartData();
     setSimulateButtons(dataProcessor->selfCheck() && operating);
     setCprButtons(false);

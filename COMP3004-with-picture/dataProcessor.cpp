@@ -120,7 +120,7 @@ bool DataProcessor::selfCheck()
         qInfo("self test passed");
     }
     else{
-        if(batteryLeft<15){
+        if(batteryLeft<=15){
             qInfo("low battery, self test failed, DataProcessor can not work! Please fill the battery.");
         }
         else{

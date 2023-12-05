@@ -95,6 +95,7 @@ protected:
     int anaylzingTime;
     int cprTime;
     int cprCount;
+    int treatmentCount;
     int shockCount;
     int previousCpr;
     int currCpr;

@@ -5,15 +5,15 @@
 
 #define DEFAULT_CURRSTEP -1;
 #define DEFAULT_CPRCOUNT 0;
-#define DEFAULT_SHOCKCOUNT 0;
+#define DEFAULT_TREATMENTCOUNT 0;
 #define DEFAULT_PREVIOUSCPR -1;
 const bool DEFAULT_AED_WORKING = false;
 #define DEFAULT_WAVE_GRAPH_X 0.0;
 #define DEFAULT_CPR_TIME 0;
 #define DEFAULT_ANALYZING_TIME 0;
 #define DEFAULT_WAIT_PAD_TIME 0;
-#define DEFAULT_TREATMENT_TIME 0;
 #define DEFAULT_ELAPSED_TIME 0;
+#define DEFAULT_SHOCK_COUNT 0;
 
 const int MAX_TREATMENTS = 3;
 const float CPR_COMPRESSION_LEVEL_A_INCH = 1;
@@ -32,12 +32,12 @@ const int ENERGY_J_1 = 120;
 const int ENERGY_J_2 = 150;
 const int ENERGY_J_3 = 200;
 
-const int BATTERY_FULL_ENERGY_J = 150;
+const int BATTERY_FULL_ENERGY_J = 200;
 
 
-#define ANALYZING_TIME 6    //the end time for analyzing
-#define CPR_TIME 10         //the end time for cpr,
-                            //actual time is CPR_TIME*2 seconds
+#define ANALYZING_TIME 4    //the end time for analyzing
+#define CPR_TIME 4         //the end time for cpr,
+                            //actual time is CPR_TIME*2+2 seconds
 #define WAIT_PAD_TIME 5     //the end time for waiting pad
 #define MAIN_PROCESS_TIME_INTERVAL 2000
                             //the time interval for main process timer,
