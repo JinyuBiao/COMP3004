@@ -1,7 +1,7 @@
 Team 21 (4):
 Yifei Ding
 Github: yifeiding233
--UML, coding
+-UML, coding, use cases
 
 Patmarie Adegbuyi
 Github: Patmarie-Adegbuyi
@@ -9,11 +9,11 @@ Github: Patmarie-Adegbuyi
 
 Jinyu Biao
 Github: JinyuBiao
--did majority of the coding
+-Use cases, coding, state diagram
 
 Yitong Liu:
 Github: sunnyliuYT
--UML, coding
+-UML, coding, use cases
 
 Deadlines
 
