@@ -5,6 +5,10 @@ DataProcessor::DataProcessor()
     heartAmp = 0;
     heartRate = 0;
     batteryLeft = 100;
+    connected = false;
+    ChildPad = false;
+    AdultPad = false;
+    detectedState = dead;
 }
 
 DataProcessor::~DataProcessor()
