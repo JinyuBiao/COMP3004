@@ -304,7 +304,6 @@ void MainWindow::changeBatteryLeft(double batteryLeft)
         }
         else if(batteryLeft <= 15 && operating){
             ui->selfTestLight->setChecked(false);
-            stopProcess();
         }
         else if(operating && !aedWorking){
             bool seftTest = dataProcessor->selfCheck();
