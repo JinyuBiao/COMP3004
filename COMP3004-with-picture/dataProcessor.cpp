@@ -160,13 +160,6 @@ bool DataProcessor::detectShockable()//needs to add DataProcessorUI functions fo
             shockable = false;
         }
     }
-    else{
-        //DataProcessorUI methods to state
-        //that there is no pad connected on console goes here:
-
-
-    }
-
     return shockable;
 }
 
