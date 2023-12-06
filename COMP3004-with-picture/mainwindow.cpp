@@ -885,10 +885,6 @@ void MainWindow::padDetecting(){
         stepImages[3]->setChecked(true);
         qDebug() << "start detecting pad at process " << QString::number(currStep);
         currStep++;
-
-        if(!mainProcessTimer->isActive()){
-            initializeMainTimer();
-        }
     }
     else{
         waitingForPad();
