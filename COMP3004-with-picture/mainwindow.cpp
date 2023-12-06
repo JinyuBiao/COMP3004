@@ -157,35 +157,6 @@ void MainWindow::detectSelectedPad(){
     }
 }
 
-void MainWindow::cprBarDropHelper(int i){
-    if(dataProcessor->detectPad()){
-    //if push is above or equals to 1 inch
-        if(i != 0){
-            ui->cprPrompt->clear();
-            cprPrompt();
-            //make sure cprBarDropTimer is stopped
-            //and disconnected
-            if(ui->cprBar->value() > 0){
-                cprBarDropTimer->stop();
-                cprBarDropTimer->disconnect();
-            }
-            ui->cprBar->setValue(i*CPR_BAR_MULTIPLIAR);
-            connect(cprBarDropTimer,
-                    &QTimer::timeout,
-                    this, &MainWindow::cprBarDrop);
-            cprBarDropTimer->start(CPR_BAR_DROP_RATE);
-
-            //if it is a child pad, pushing 1 or 2 inches should be a good push, otherwise only 2 inches is a good push
-            if(dataProcessor->hasChildPad() ||
-                    (currCpr == CPR_COMPRESSION_LEVEL_C_INCH
-                     && dataProcessor->hasAdultPad()))
-               cprCount++;
-            ui->cprCount->display(cprCount);
-        }
-    }
-
-}
-
 void MainWindow::determinePatientSurvival(){
     // Initialize the possibilities
     int patientDiePossibility = 30;  // Default value for dead possibility
@@ -462,10 +433,8 @@ void MainWindow::updateMainTimer()
             //separate class
         break;
         case 5://this shall try to finish the fifth step (cpr) and if finished, it shall determine patient's condition, to decide whether re run the heart analyzing step again or stop the process if patient is dead
-            currCpr = 0;
             ui->currProcess->setText("CPR period");
             ui->cprCount->display(cprCount);
-            cprPrompt();
             doCpr();
             //separate class
         break;
@@ -768,6 +737,7 @@ void MainWindow::cprPush()
         }
     }
     cprPrompt();
+    previousCpr = currCpr;
 }
 
 void MainWindow::cprBarDrop()
@@ -810,31 +780,15 @@ void MainWindow::cprPrompt()
 {
     if(currCpr != 0){
         //ADULT CASE: ONLY 2 INCHES IS A GOOD PUSH
-        if(currCpr == CPR_COMPRESSION_LEVEL_A_INCH
+        if(currCpr == CPR_COMPRESSION_LEVEL_B_INCH
                 && dataProcessor->hasAdultPad()){
             ui->cprPrompt->setText("PUSH HARDER");
-        }
-        else if(currCpr == CPR_COMPRESSION_LEVEL_B_INCH
-                && dataProcessor->hasAdultPad()){
-            ui->cprPrompt->setText("PUSH HARDER");
-        }
-        else if(currCpr == CPR_COMPRESSION_LEVEL_C_INCH
-                && dataProcessor->hasAdultPad()){
-            ui->cprPrompt->setText("GOOD PUSH");
         }
 
         //CHILD CASE: 1 OR 2 INCH IS A GOOD PUSH
         else if(currCpr == CPR_COMPRESSION_LEVEL_A_INCH
                 && dataProcessor->hasChildPad()){
             ui->cprPrompt->setText("PUSH HARDER");
-        }
-        else if(currCpr == CPR_COMPRESSION_LEVEL_B_INCH
-                && dataProcessor->hasChildPad()){
-            ui->cprPrompt->setText("GOOD PUSH");
-        }
-        else if(currCpr == CPR_COMPRESSION_LEVEL_C_INCH
-                && dataProcessor->hasChildPad()){
-            ui->cprPrompt->setText("GOOD PUSH");
         }
 
         //if the pad is for adult,
@@ -855,9 +809,37 @@ void MainWindow::cprPrompt()
             ui->cprPrompt->setText("GOOD PUSH, PLEASE KEEP IT UP");
         }
         else{
+            qDebug() << QString::number(previousCpr) << " " << QString::number(currCpr);
             ui->cprPrompt->setText("Do CPR Pushes");
         }
-        previousCpr = currCpr;
+    }
+}
+
+void MainWindow::cprBarDropHelper(int i){
+    if(dataProcessor->detectPad()){
+    //if push is above or equals to 1 inch
+        if(i != 0){
+            ui->cprPrompt->clear();
+            cprPrompt();
+            //make sure cprBarDropTimer is stopped
+            //and disconnected
+            if(ui->cprBar->value() > 0){
+                cprBarDropTimer->stop();
+                cprBarDropTimer->disconnect();
+            }
+            ui->cprBar->setValue(i*CPR_BAR_MULTIPLIAR);
+            connect(cprBarDropTimer,
+                    &QTimer::timeout,
+                    this, &MainWindow::cprBarDrop);
+            cprBarDropTimer->start(CPR_BAR_DROP_RATE);
+
+            //if it is a child pad, pushing 1 or 2 inches should be a good push, otherwise only 2 inches is a good push
+            if(dataProcessor->hasChildPad() ||
+                    (currCpr == CPR_COMPRESSION_LEVEL_C_INCH
+                     && dataProcessor->hasAdultPad()))
+               cprCount++;
+            ui->cprCount->display(cprCount);
+        }
     }
 }
 
