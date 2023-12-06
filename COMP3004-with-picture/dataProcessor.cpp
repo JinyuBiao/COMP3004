@@ -82,7 +82,7 @@ void DataProcessor::setHeartData()
             break;
         case healthy:
             heartRate = (AdultPad) ? 80 : 100; //generates 80 for adult heart rate otherwise between 100 for child heart rate
-            heartAmp = 800; //generate heart amplitude 800 if haven't already
+            heartAmp = 600; //generate heart amplitude 800 if haven't already
             break;
         case other:
             heartRate = (AdultPad) ? rand()%5+1 : rand()%3 + 1;

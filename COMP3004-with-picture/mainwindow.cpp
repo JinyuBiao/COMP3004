@@ -188,9 +188,9 @@ void MainWindow::cprBarDropHelper(int i){
 
 void MainWindow::determinePatientSurvival(){
     // Initialize the possibilities
-    int patientDiePossibility = 40;  // Default value for dead possibility
-    int patientHealthyPossibility = 30;  // Default value for healthy possibility
-    int patientBecomeNoneShockablePossibility = 5; // Default value for becoming none-shockable
+    int patientDiePossibility = 30;  // Default value for dead possibility
+    int patientHealthyPossibility = 20;  // Default value for healthy possibility
+    int patientBecomeNoneShockablePossibility = 10; // Default value for becoming none-shockable
     //int patientShockNeededPossibility = 30;  // Possibility for another shock and CPR
 
     stepImages[4]->setChecked(false);
@@ -201,7 +201,7 @@ void MainWindow::determinePatientSurvival(){
 
     if (!(isCprEnough && isPadMatch)) {
         // If CPR count is not enough or pad doesn't match
-        patientDiePossibility = 70;  // Increase the dead possibility
+        patientDiePossibility = 60;  // Increase the dead possibility
         patientHealthyPossibility = 0;  // Set healthy possibility to 0%
     }
 
@@ -718,8 +718,8 @@ void MainWindow::generateHeartData()
     else if(dataProcessor->getDetectedState()==healthy){
         updatingEcg(3,dataProcessor->getAmp()+1000);
         updatingEcg(3,1000-dataProcessor->getAmp());
-        updatingEcg(4,1000);
-        updatingEcg(220/dataProcessor->getHeartRate(),1000);
+        updatingEcg(3,1000);
+        updatingEcg(800/dataProcessor->getHeartRate(),1000);
     }
     else if(dataProcessor->getDetectedState()==fibrillation){
         double randomInvertal = (rand()%9+4)/(rand()%3+1);
