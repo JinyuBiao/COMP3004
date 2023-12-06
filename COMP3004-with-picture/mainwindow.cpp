@@ -511,11 +511,13 @@ void MainWindow::placePad(bool placed)
     //check which pad is currently selected in the comboBox,
     //and set that pad to true in aed
     if(placed){
-        if(ui->padSelectionComboBox->currentText()=="AdultPad"){
-            connectedToAdultPad();
-        }
-        else{
-            connectedToChildPad();
+        if(dataProcessor->isConnected()){
+            if(ui->padSelectionComboBox->currentText()=="AdultPad"){
+                connectedToAdultPad();
+            }
+            else{
+                connectedToChildPad();
+            }
         }
     }
     //otherwise if place pad checkbox is unchecked, set all pad in aed to false
