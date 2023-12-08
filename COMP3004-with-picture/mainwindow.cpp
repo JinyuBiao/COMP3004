@@ -37,7 +37,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     //connect buttons
     connectButtons();
-
+    ui->selfTestLight->setEnabled(false);
     setSimulateButtons(false);
 
 }
@@ -160,7 +160,7 @@ void MainWindow::detectSelectedPad(){
 void MainWindow::determinePatientSurvival(){
     // Initialize the possibilities
     int patientDiePossibility = 30;  // Default value for dead possibility
-    int patientHealthyPossibility = 20;  // Default value for healthy possibility
+    int patientHealthyPossibility = 30;  // Default value for healthy possibility
     int patientBecomeNoneShockablePossibility = 10; // Default value for becoming none-shockable
     //int patientShockNeededPossibility = 30;  // Possibility for another shock and CPR
 
@@ -182,8 +182,8 @@ void MainWindow::determinePatientSurvival(){
     if (randomValue < patientDiePossibility || treatmentCount == 3) { //for testing, the max time for cpr period is 3, exceeding this meaning patient dies
         patient->setState(dead);
         dataProcessor->setDetectedState(dead);
-        qInfo("Patient is dead, sending flatline signal.");
-        ui->cprPrompt->setText("Patient is flatlined, process ending after analyzing period");
+        qInfo("Patient is dead, sending death signal.");
+        ui->cprPrompt->setText("Patient is dead, process ending after analyzing period");
     } else if (randomValue < patientDiePossibility + patientHealthyPossibility) {
         patient->setState(healthy);
         dataProcessor->setDetectedState(healthy);
@@ -193,7 +193,10 @@ void MainWindow::determinePatientSurvival(){
         patient->setState(other);
         dataProcessor->setDetectedState(other);
         qInfo("Patient becomes none shockable, sending asystole signal.");
-        ui->cprPrompt->setText("Patient becomes none-shockable, process continues");
+        ui->cprPrompt->setText("Patient now has asystole, process continues");
+    }
+    else{
+        ui->cprPrompt->setText("Patient still needs treatment");
     }
     treatmentCount++;
     setCprButtons(false);
@@ -365,7 +368,7 @@ void MainWindow::simulateDead()
     simulatedState = dead;
     patient->setState(dead);
 
-    ui->currScenarioLabel->setText("Faltlined Patient");
+    ui->currScenarioLabel->setText("dead Patient");
     ui->currScenarioLabel->setAlignment(Qt::AlignCenter);
     startProcess();
 }
@@ -384,10 +387,9 @@ void MainWindow::simulateOther()
 void MainWindow::initializeMainTimer()
 {
     connect(mainProcessTimer, &QTimer::timeout, this, &MainWindow::updateMainTimer);
-    qDebug() << "starting process " << QString::number(currStep);
     stepImages[0]->setChecked(true); //this sets the first step button to checked, so the image will change, same for all other steps
     ui->currProcess->setText("Check responsiveness");
-    //qDebug() << "Process 1: Checking if the patient is OK";
+    qDebug() << "Process 1: Checking if the patient is OK";
     updatingEcg(1,1000);//start a flatline ecg wave at the first step
     currStep++;
     mainProcessTimer->start(MAIN_PROCESS_TIME_INTERVAL);
@@ -407,17 +409,16 @@ void MainWindow::updateMainTimer()
         //(set first step button to unchecked) and start the second step
             stepImages[0]->setChecked(false);
             stepImages[1]->setChecked(true);
-            qDebug() << "starting process " << QString::number(currStep);
             ui->currProcess->setText("Calling emergency service");
-            //qDebug() << "Process 2: Calling emergency service";
+            qDebug() << "Process 2: Calling emergency service";
             updatingEcg(10,1000);
             currStep++;
         break;
         case 2://this finishes the second step and start the third (pad detection) step
             stepImages[1]->setChecked(false);
             stepImages[2]->setChecked(true);
-            qDebug() << "starting process " << QString::number(currStep);
             ui->currProcess->setText("Waiting pad placement");
+            qDebug() << "Process 3: palcing pad on the patient";
             updatingEcg(10,1000);
             currStep++;
         break;
@@ -584,10 +585,8 @@ void MainWindow::changeAge()
 
 void MainWindow::startAnaylzing()
 {
-    //clear past prompt
-    ui->cprPrompt->clear();
     anaylzingTime++;
-    qDebug() << "anaylzing, please wait, current time elapsed for anaylzing: " << QString::number(anaylzingTime*2) << "seconds";
+    qDebug() << "Process 4: anaylzing, please wait, current time elapsed for anaylzing: " << QString::number(anaylzingTime*2) << "seconds";
     //ui->cprPrompt->setText("Analyzing...");
     if(anaylzingTime < ANALYZING_TIME){
         //generate and draw ecg data every MAIN_PROCESS_TIME_INTERVAL/1000 seconds
@@ -601,7 +600,7 @@ void MainWindow::startAnaylzing()
         if(dataProcessor->getDetectedState()==dead || dataProcessor->getDetectedState()==healthy){
             aedWorking = false;
             generateHeartData();
-            qDebug() << "either flatline signal, healthy signal or no signal detected, stop the process";
+            qDebug() << "either death signal, healthy signal or no signal detected, stop the process";
         }
         //else if patient does not have shockable rhythm,
         //on to the cpr period
@@ -706,7 +705,7 @@ void MainWindow::doCpr()
 {
     if(cprTime <= CPR_TIME){
         cprTime++;
-        qDebug() << "in cpr period, please do cpr, current time elapsed for cpr:"
+        qDebug() << "Process 5: in cpr period, please do cpr, current time elapsed for cpr:"
                  << QString::number(cprTime*2) << "seconds";
         ui->cprPrompt->setText("In CPR Period, Please Do CPR Pushes");
     }
@@ -809,7 +808,6 @@ void MainWindow::cprPrompt()
             ui->cprPrompt->setText("GOOD PUSH, PLEASE KEEP IT UP");
         }
         else{
-            qDebug() << QString::number(previousCpr) << " " << QString::number(currCpr);
             ui->cprPrompt->setText("Do CPR Pushes");
         }
     }
