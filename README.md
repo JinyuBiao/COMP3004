@@ -29,6 +29,8 @@ cpr:https://youtu.be/enziqFPIirg
 
 shock:https://youtu.be/ABy60WP6XSY
 
+touch patient scenario:https://youtu.be/y0EiDX5TnjA
+
 other scenarios:https://youtu.be/_gVP7Gsbtlw
 
 Deadlines
