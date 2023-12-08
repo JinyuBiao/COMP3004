@@ -5,7 +5,7 @@ Github: yifeiding233
 
 Patmarie Adegbuyi
 Github: Patmarie-Adegbuyi
--UML, Use cases, Traceability Matrix
+-UML, Use cases, Traceability Matrix, sequence diagram
 
 Jinyu Biao
 Github: JinyuBiao
@@ -14,6 +14,22 @@ Github: JinyuBiao
 Yitong Liu:
 Github: sunnyliuYT
 -UML, coding, use cases
+
+videos:
+power on/pff:https://youtu.be/EH7p3BNOdCo
+
+operation&self test:https://youtu.be/d_vP2THFzaE
+
+none-shockable rhythms:
+    dead:https://youtu.be/Uv3NbVsRV5U
+    healthy:https://youtu.be/O2-Y8gUbHGE
+    asystole:https://youtu.be/AXndMkt-n1o
+
+cpr:https://youtu.be/enziqFPIirg
+
+shock:https://youtu.be/ABy60WP6XSY
+
+other scenarios:https://youtu.be/_gVP7Gsbtlw
 
 Deadlines
 
