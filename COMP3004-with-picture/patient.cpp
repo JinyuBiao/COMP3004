@@ -35,9 +35,9 @@ QString Patient::getStateString()
         case tachycardia:
             return("ventricular tachycardia");
         case other:
-            return("other conditions");
+            return("asystole");
         case dead:
-            return("flatlined");
+            return("dead");
         case healthy:
             return("healthy");
         default:

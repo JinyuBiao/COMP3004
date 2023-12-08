@@ -274,7 +274,7 @@ QPushButton {
    <widget class="QPushButton" name="step5">
     <property name="geometry">
      <rect>
-      <x>100</x>
+      <x>90</x>
       <y>440</y>
       <width>181</width>
       <height>151</height>
@@ -1071,9 +1071,9 @@ p, li { white-space: pre-wrap; }
     <property name="geometry">
      <rect>
       <x>230</x>
-      <y>450</y>
+      <y>440</y>
       <width>351</width>
-      <height>41</height>
+      <height>61</height>
      </rect>
     </property>
     <property name="font">

@@ -88,7 +88,7 @@ void DataProcessor::setHeartData()
             heartRate = (AdultPad) ? rand()%5+1 : rand()%3 + 1;
             //generates low heart rate which is 1 to 59
             //for adult heart rate otherwise between 1 to 79
-            //for child heart rate, for other condition
+            //for child heart rate, for asystole
             if(heartAmp==0)
                 heartAmp = 50;
             //set low heart amplitude for asystole condition
@@ -149,7 +149,7 @@ bool DataProcessor::detectShockable()//needs to add DataProcessorUI functions fo
         else if(detectedState==dead){
             //DataProcessorUI methods to warning a flatline
             //or no signal detected on console goes here:
-            qInfo("Patient has flatlined or no signal detected, shock is disabled");
+            qInfo("Patient is dead or no signal detected, shock is disabled");
             shockable = false;
 
         }
@@ -198,7 +198,7 @@ QString DataProcessor::getDetectedStateString()
         case other:
             return("asystole");
         case dead:
-            return("flatlined");
+            return("dead");
         case healthy:
             return("healthy");
         default:
