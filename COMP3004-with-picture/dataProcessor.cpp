@@ -69,7 +69,7 @@ void DataProcessor::setHeartData()
                                      + 101 : rand()%100 + 121;
                 //generates heart rate between 101 to 200 for adult heart rate,
                 //otherwise between 121 to 220 for child heart rate, if haven't already
-            if(heartAmp==0 || heartRate==80)
+            if(heartAmp==600 || heartRate==80 || heartAmp==0)
                 heartAmp = rand()%201 + 800;
                 //generate heart amplitude between
                 //800 to 1000 if haven't already
@@ -89,7 +89,7 @@ void DataProcessor::setHeartData()
             //generates low heart rate which is 1 to 59
             //for adult heart rate otherwise between 1 to 79
             //for child heart rate, for asystole
-            if(heartAmp==0)
+            if(heartAmp==0 || heartAmp==600)
                 heartAmp = 50;
             //set low heart amplitude for asystole condition
             break;
