@@ -15,7 +15,7 @@ Yitong Liu:
 Github: sunnyliuYT
 -UML, coding, use cases
 
-Textual explaination:
+Textual explanation:
     Out program has 4 buttons for simulating 4 different scenarios (two shockable rhythm, asystole and dead rhythm) For testing, 
     first turn on the device by clicking the power-On button, then make sure self-test is passed by ensuring the remaing battery
     is above 15 and electrode is connected (clicks the electrode connected check box to connect)  After self test is passed, click
