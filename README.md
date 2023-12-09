@@ -26,7 +26,7 @@ Textual explanation:
     turns out to have asystole rhythm after receiving the CPR.
 
 videos:
-power on/pff:    https://youtu.be/EH7p3BNOdCo
+power on/off:    https://youtu.be/EH7p3BNOdCo
 
 operation&self test:    https://youtu.be/d_vP2THFzaE
 
