@@ -23,7 +23,8 @@ Textual explanation:
     2 seconds, while the textual message is printed on the console simultaneously. The program also supports the simulation of pad
     placement, battery depletion, changing patient's age and patient status record. After performing the CPR, program generates a random 
     value to determine whether patient gets healthy, dies or remain unhealthy, it is possible that the patient who has shockable rhythm
-    turns out to have asystole rhythm after receiving the CPR.
+    turns out to have asystole rhythm after receiving the CPR. The max analysis-CPR loop is 3, which means if patient does not get healthy
+    after cpr period 3 times, they will die.
 
 videos:
 power on/off:    https://youtu.be/EH7p3BNOdCo
