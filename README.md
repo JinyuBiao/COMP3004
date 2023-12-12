@@ -15,6 +15,10 @@ Yitong Liu:
 Github: sunnyliuYT
 -UML, coding, use cases
 
+submission organization:
+    all sources files are in the COMP3004-with-picture directory.
+    other files are documentations.
+
 Textual explanation:
     Out program has 4 buttons for simulating 4 different scenarios (two shockable rhythm, asystole and dead rhythm) For testing, 
     first turn on the device by clicking the power-On button, then make sure self-test is passed by ensuring the remaing battery
